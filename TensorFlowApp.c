@@ -2,6 +2,9 @@
 
 gcc -Iinclude -Llib TensorFlowApp.c -ltensorflow -o TensorFlowApp
 
+
+
+
 */
 
 #include <stdio.h>
@@ -11,6 +14,5 @@ int main() {
   printf("Hello from TensorFlow C / C++ library version %s\n", TF_Version());
   return 0;
 }
-
 
 
