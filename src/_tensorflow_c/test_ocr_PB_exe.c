@@ -4,7 +4,7 @@
 
     TOOLCHAIN : C:\msys64\ucrt64\bin.
     
-    gcc -o test_dll_ocr.exe test_dll_ocr.c
+    gcc -o test_dll_ocr.exe tf_dll_test.c
 
 */
 

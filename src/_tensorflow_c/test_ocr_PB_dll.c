@@ -1,5 +1,5 @@
 /*
-    TOOLCHAIN : C:\msys64\ucrt64\bin.
+    TOOLCHAIN : C:\msys64\mingwin\bin.
     
     gcc -I"include" -L"lib" -shared -o OCR_Tensorflow.dll OCR_Tensorflow.c -ltensorflow
 

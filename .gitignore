@@ -1,4 +1,4 @@
-src/_tensorflow_c/lib/tensorflow.dll
-src/_tensorflow_c/lib/tensorflow.lib
-src/_tensorflow_c/__dist/tensorflow.lib
-src/_tensorflow_c/__dist/tensorflow.dll 
+install/
+src/_tensorflow_c/__test/
+src/_tensorflow_c/lib/
+src/_tensorflow_c/__dist/ 

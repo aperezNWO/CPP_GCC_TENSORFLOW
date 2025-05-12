@@ -1,10 +1,15 @@
 /*
 
-TOOLCHAIN : C:\msys64\ucrt64\bin.
+TOOLCHAIN : C:\msys64\mingw64\bin.
 
-gcc -I"include" -L"lib" -shared -o TensorFlowApp64_C.dll tf_dll_gen.c -ltensorflow
+gcc -I"include" -L"lib" -shared -o TensorFlowAppC.dll tf_dll_gen.c -ltensorflow
 
-
+3) UTILIZAR PROYECDTO CPP_GCC_TENSORFLOW.DEV (Embarcadero Dev C++) PROVISIONALMENTE PARA 
+   
+   A) VISUALIZAR Y EDITAR ARCHIVOS.
+   B) COMPILAR CON LINEA DE COMANDOS.
+   C) EJECUTAR COMANDOS GIT
+   
 */
 
 

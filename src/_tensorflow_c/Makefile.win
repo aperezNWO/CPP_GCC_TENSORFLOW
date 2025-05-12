@@ -1,0 +1,29 @@
+# Project: CPP_GCC_TENSORFLOW
+# Makefile created by Embarcadero Dev-C++ 6.3
+
+CPP      = g++.exe -D__DEBUG__
+CC       = gcc.exe -D__DEBUG__
+WINDRES  = windres.exe
+OBJ      = tf_dll_gen.o
+LINKOBJ  = tf_dll_gen.o
+LIBS     = -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib" -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/lib" -L"C:/Users/pablo.perez/dev/cpp/CPP_GCC_TENSORFLOW/src/_tensorflow_c/lib" lib/tensorflow.dll lib/tensorflow.lib -g3
+INCS     = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include" -I"C:/Users/pablo.perez/dev/cpp/CPP_GCC_TENSORFLOW/src/_tensorflow_c/include"
+CXXINCS  = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include/c++" -I"C:/Users/pablo.perez/dev/cpp/CPP_GCC_TENSORFLOW/src/_tensorflow_c/include"
+BIN      = CPP_GCC_TENSORFLOW.a
+CXXFLAGS = $(CXXINCS) -g3 -oTensorFlowApp64_C.dll
+CFLAGS   = $(INCS) -g3 -oTensorFlowApp64_C.dll
+DEL      = C:\Program Files (x86)\Embarcadero\Dev-Cpp\devcpp.exe INTERNAL_DEL
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${DEL} $(OBJ) $(BIN)
+
+$(BIN): $(LINKOBJ)
+	ar r $(BIN) $(LINKOBJ)
+	ranlib $(BIN)
+
+tf_dll_gen.o: tf_dll_gen.c
+	$(CPP) -c tf_dll_gen.c -o tf_dll_gen.o $(CXXFLAGS)

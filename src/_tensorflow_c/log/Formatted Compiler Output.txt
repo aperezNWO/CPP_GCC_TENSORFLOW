@@ -1,0 +1,26 @@
+12/05/2025 3:07:04 a. m.: Creating log...
+
+		C:\Program Files (x86)\Embarcadero\Dev-Cpp\TDM-GCC-64\x86_64-w64-mingw32\bin\ld.exe	C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/lib/libmingw32.a(lib64_libmingw32_a-crt0_c.o): in function `main':
+18		C:\crossdev\src\mingw-w64-v7-git20191109\mingw-w64-crt\crt\crt0_c.c	undefined reference to `WinMain'
+		C:\Users\pablo.perez\dev\cpp\CPP_GCC_TENSORFLOW\src\_tensorflow_c\collect2.exe	[Error] ld returned 1 exit status
+25		C:\Users\pablo.perez\dev\cpp\CPP_GCC_TENSORFLOW\src\_tensorflow_c\Makefile.win	recipe for target 'CPP_GCC_TENSORFLOW.exe' failed
+
+12/05/2025 3:08:47 a. m.: Appending to log...
+
+		C:\Program Files (x86)\Embarcadero\Dev-Cpp\TDM-GCC-64\x86_64-w64-mingw32\bin\ld.exe	C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/lib/libmingw32.a(lib64_libmingw32_a-crt0_c.o): in function `main':
+18		C:\crossdev\src\mingw-w64-v7-git20191109\mingw-w64-crt\crt\crt0_c.c	undefined reference to `WinMain'
+		C:\Users\pablo.perez\dev\cpp\CPP_GCC_TENSORFLOW\src\_tensorflow_c\collect2.exe	[Error] ld returned 1 exit status
+25		C:\Users\pablo.perez\dev\cpp\CPP_GCC_TENSORFLOW\src\_tensorflow_c\Makefile.win	recipe for target 'CPP_GCC_TENSORFLOW.exe' failed
+
+12/05/2025 3:09:21 a. m.: Appending to log...
+
+		C:\Program Files (x86)\Embarcadero\Dev-Cpp\TDM-GCC-64\x86_64-w64-mingw32\bin\ld.exe	C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/lib/libmingw32.a(lib64_libmingw32_a-crt0_c.o): in function `main':
+18		C:\crossdev\src\mingw-w64-v7-git20191109\mingw-w64-crt\crt\crt0_c.c	undefined reference to `WinMain'
+		C:\Users\pablo.perez\dev\cpp\CPP_GCC_TENSORFLOW\src\_tensorflow_c\collect2.exe	[Error] ld returned 1 exit status
+25		C:\Users\pablo.perez\dev\cpp\CPP_GCC_TENSORFLOW\src\_tensorflow_c\Makefile.win	recipe for target 'CPP_GCC_TENSORFLOW.exe' failed
+
+12/05/2025 3:13:40 a. m.: Appending to log...
+
+			ar r CPP_GCC_TENSORFLOW.a tf_dll_gen.o
+		C:\Users\pablo.perez\dev\cpp\CPP_GCC_TENSORFLOW\src\_tensorflow_c\ar	creating CPP_GCC_TENSORFLOW.a
+			ranlib CPP_GCC_TENSORFLOW.a
