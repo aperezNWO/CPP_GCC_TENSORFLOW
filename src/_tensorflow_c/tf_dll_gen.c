@@ -2,7 +2,12 @@
 
 TOOLCHAIN : C:\msys64\mingw64\bin.
 
-gcc -I"include" -L"lib" -shared -o TensorFlowAppC.dll tf_dll_gen.c -ltensorflow
+// OK - NON STATIC
+gcc -I"include" -L"lib" -shared -m64 -o TensorFlowAppC.dll tf_dll_gen.c -ltensorflow 
+
+// UNABLE TO COMPILE AS STATIC
+gcc -I"include" -L"lib" -shared -static -static-libgcc -static-libstdc++ -m64 -o TensorFlowAppC.dll tf_dll_gen.c -ltensorflow -Wl,--subsystem,console 
+
 
 3) UTILIZAR PROYECDTO CPP_GCC_TENSORFLOW.DEV (Embarcadero Dev C++) PROVISIONALMENTE PARA 
    
