@@ -2,3 +2,6 @@ install/
 src/_tensorflow_c/__test/
 src/_tensorflow_c/lib/
 src/_tensorflow_c/__dist/ 
+src/_tensorflow_cpp/__test/
+src/_tensorflow_cpp/lib/
+src/_tensorflow_cpp/__dist/ 

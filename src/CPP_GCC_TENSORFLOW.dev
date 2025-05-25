@@ -50,28 +50,18 @@ ProductVersion=1.0.0.0
 AutoIncBuildNr=0
 SyncProduct=1
 
-[Unit1]
-FileName=test_ocr_PB_dll.c
-CompileCpp=1
-Folder=
-Compile=0
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=$(CPP) -c test_ocr_PB_dll.c -o test_ocr_PB_dll.o $(CXXFLAGS)
-
 [Unit2]
-FileName=test_ocr_PB_exe.c
+FileName=_tensorflow_cpp\tensorFlowApp.cpp
 CompileCpp=1
 Folder=
-Compile=0
-Link=0
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CPP) -c test_ocr_PB_exe.c -o test_ocr_PB_exe.o $(CXXFLAGS)
+BuildCmd=
 
 [Unit3]
-FileName=tf_dll_gen.c
+FileName=_tensorflow_cpp\include\tensorFlowApp.h
 CompileCpp=1
 Folder=
 Compile=1
@@ -81,12 +71,22 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit4]
-FileName=tf_dll_test.c
+FileName=_tensorflow_cpp\__test\tensorflow.ini
 CompileCpp=0
 Folder=
 Compile=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CC) -c tf_dll_test.c -o tf_dll_test.o $(CFLAGS)
+BuildCmd=
+
+[Unit1]
+FileName=_tensorflow_cpp\tf_dll_test.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 
