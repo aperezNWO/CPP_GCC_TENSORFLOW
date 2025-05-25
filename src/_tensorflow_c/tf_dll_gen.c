@@ -49,7 +49,7 @@ EXPORT const char* GetTensorFlowVersionInfo() {
     return msg;  // Remember: caller must free() this!
 }
 
-EXPORT const char* GetTensorFlowVersion() {
+EXPORT const char* GetTensorFlowAPIVersion() {
   const char* msg = TF_Version();
   return msg; // Return the TensorFlow version directly
 }
