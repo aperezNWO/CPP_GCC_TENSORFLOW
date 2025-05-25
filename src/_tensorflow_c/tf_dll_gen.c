@@ -1,8 +1,13 @@
 /*
 
+//
 TOOLCHAIN : C:\msys64\mingw64\bin.
 
-// OK - NON STATIC
+// INSTALLERS
+https://www.tensorflow.org/install/lang_c?hl=es-419
+
+
+// COMPILE OK - NON STATIC
 gcc -I"include" -L"lib" -shared -m64 -o TensorFlowAppC.dll tf_dll_gen.c -ltensorflow 
 
 // UNABLE TO COMPILE AS STATIC
