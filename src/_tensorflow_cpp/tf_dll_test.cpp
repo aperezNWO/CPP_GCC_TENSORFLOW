@@ -1,6 +1,6 @@
 /*
 
-1) TOOLCHAIN : C:\msys64\ucrt64\bin.
+1) TOOLCHAIN : C:\msys64\ucrt64\bin (CHANGE PATH)
 
 2) g++ -o TensorFlowAppCPP.exe tf_dll_test.cpp 
 
@@ -47,7 +47,7 @@ int main() {
     //////////////////////////////////////////////////////
     
     
-    GetTensorFlowAPPVersionFunc GetTensorFlowAPPVersion = (GetTensorFlowAPPVersionFunc)GetProcAddress(hDLL, "GetTensorFlowAPPersion");
+    GetTensorFlowAPPVersionFunc GetTensorFlowAPPVersion = (GetTensorFlowAPPVersionFunc)GetProcAddress(hDLL, "GetTensorFlowAppVersion");
     if (!GetTensorFlowAPIVersion) {
         printf("Could not locate the function 'GetTensorFlowAPPVersion'.\n");
         FreeLibrary(hDLL);

@@ -1,7 +1,7 @@
 /*
 
 //
-TOOLCHAIN : C:\msys64\mingw64\bin.
+TOOLCHAIN : C:\msys64\uctr64\bin (CHANGE PATH)
 
 // INSTALLERS
 https://www.tensorflow.org/install/lang_c?hl=es-419
@@ -9,7 +9,8 @@ https://www.tensorflow.org/install/lang_c?hl=es-419
 
 // COMPILE OK - NON STATIC
 
-g++ -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowApp.cpp -ltensorflow  
+g++ -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowApp.cpp -ltensorflow  -Wl,--subsystem,windows 
+
 
 // UNABLE TO COMPILE AS STATIC
 gcc -I"include" -L"lib" -shared -static -static-libgcc -static-libstdc++ -m64 -o TensorFlowAppC.dll tf_dll_gen.c -ltensorflow -Wl,--subsystem,console 
@@ -97,14 +98,6 @@ int          TensorFlowApp::ReadConfigFile()
 } 
 
 //
-const char*  TensorFlowApp::GetTensorFlowAppVersion()
-{
-	//
-	const char* version = this->configMap["DLL_VERSION"].c_str();
-    //
-    return version;  
-}
-//
 const char*  TensorFlowApp::GetTensorFlowAPIVersion()
 {
     // 
@@ -112,17 +105,20 @@ const char*  TensorFlowApp::GetTensorFlowAPIVersion()
   	return msg; // Return the TensorFlow version directly;
 }
 
+//
+const char*  TensorFlowApp::GetTensorFlowAppVersion()
+{
+	//
+	const char* version = this->configMap["DLL_VERSION"].c_str();
+    //
+    return version;  
+}
+
+
 
 /////////////////////////////////////////////////////////////////////
 // DLL ENTRY POINTS
 /////////////////////////////////////////////////////////////////////
-
-DLL_EXPORT const char* GetTensorFlowAppVersion() 
-{
-		TensorFlowApp* app = new TensorFlowApp();
-		
-		return app->GetTensorFlowAppVersion();
-}
 
 DLL_EXPORT const char* GetTensorFlowAPIVersion() 
 {
@@ -133,3 +129,15 @@ DLL_EXPORT const char* GetTensorFlowAPIVersion()
     }
     return versionCache.c_str();
 }
+
+DLL_EXPORT const char* GetTensorFlowAppVersion() 
+{
+    static std::string versionCache;
+    {
+        std::unique_ptr<TensorFlowApp> app = std::make_unique<TensorFlowApp>();
+        versionCache = app->GetTensorFlowAppVersion(); // TF_Version()
+    }
+    return versionCache.c_str();
+}
+
+
