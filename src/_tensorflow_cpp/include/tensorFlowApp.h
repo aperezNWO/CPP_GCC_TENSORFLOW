@@ -23,7 +23,7 @@
 #endif
 
 
-#define DLL_EXPORT extern "C" __declspec(dllexport) __stdcall __cdecl
+#define DLL_EXPORT extern "C" __declspec(dllexport) __stdcall
 
 using namespace std;
 
@@ -35,7 +35,7 @@ class TensorFlowApp
         ~TensorFlowApp();
         //
         const char*  GetTensorFlowAPIVersion();
-        const char*  GetTensorFlowAppVersion(); 
+        std::string  GetTensorFlowAppVersion(); 
         //
         int          ReadConfigFile();
      public :

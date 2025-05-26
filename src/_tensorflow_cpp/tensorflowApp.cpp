@@ -25,20 +25,6 @@ gcc -I"include" -L"lib" -shared -static -static-libgcc -static-libstdc++ -m64 -o
 */
 
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <map>
-#include <algorithm>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <memory>
-#include <random>
-#include <regex>
-#include <cctype>
 #include <tensorflow/c/c_api.h>
 #include "include/tensorFlowApp.h"
 
@@ -100,18 +86,18 @@ int          TensorFlowApp::ReadConfigFile()
 //
 const char*  TensorFlowApp::GetTensorFlowAPIVersion()
 {
-    // 
-  	const char* msg = TF_Version();
-  	return msg; // Return the TensorFlow version directly;
+	//
+  	return TF_Version(); // Return the TensorFlow version directly;
 }
 
 //
-const char*  TensorFlowApp::GetTensorFlowAppVersion()
+std::string TensorFlowApp::GetTensorFlowAppVersion()
 {
-	//
-	const char* version = this->configMap["DLL_VERSION"].c_str();
-    //
-    return version;  
+    auto it = configMap.find("DLL_VERSION");
+    if (it != configMap.end()) {
+        return it->second;
+    }
+    return "UNKNOWN"; 
 }
 
 
@@ -130,14 +116,14 @@ DLL_EXPORT const char* GetTensorFlowAPIVersion()
     return versionCache.c_str();
 }
 
-DLL_EXPORT const char* GetTensorFlowAppVersion() 
-{
-    static std::string versionCache;
-    {
-        std::unique_ptr<TensorFlowApp> app = std::make_unique<TensorFlowApp>();
-        versionCache = app->GetTensorFlowAppVersion(); // TF_Version()
+DLL_EXPORT const char* GetTensorFlowAppVersion() {
+    static std::string version;
+    if (version.empty()) {
+        TensorFlowApp app;
+        version = app.GetTensorFlowAppVersion();
     }
-    return versionCache.c_str();
+    return version.c_str();
 }
+
 
 
