@@ -48,7 +48,7 @@ int main() {
     
     
     GetTensorFlowAPPVersionFunc GetTensorFlowAPPVersion = (GetTensorFlowAPPVersionFunc)GetProcAddress(hDLL, "GetTensorFlowAppVersion");
-    if (!GetTensorFlowAPIVersion) {
+    if (!GetTensorFlowAPPVersion) {
         printf("Could not locate the function 'GetTensorFlowAPPVersion'.\n");
         FreeLibrary(hDLL);
         return 1;
