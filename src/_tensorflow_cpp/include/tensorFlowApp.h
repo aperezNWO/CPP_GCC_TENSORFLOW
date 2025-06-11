@@ -3,31 +3,15 @@
 #define TENSORFLOWAPP_H
 #endif
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <map>
-#include <algorithm>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <memory>
-#include <random>
-#include <regex>
-#include <cctype>
-
-#ifndef TESSERACTAPP_H // include guard
-#define TESSERACTAPP_H
-#endif
-
+#include <tensorflow/c/c_api.h>
+#include "Algorithm.h"
 
 #define DLL_EXPORT extern "C" __declspec(dllexport) __stdcall
 
 using namespace std;
 
-class TensorFlowApp
+class TensorFlowApp :
+	public Algorithm
 {
     public :
         //
@@ -37,10 +21,10 @@ class TensorFlowApp
         const char*  GetTensorFlowAPIVersion();
         std::string  GetTensorFlowAppVersion(); 
         //
-        int          ReadConfigFile();
+        //int          ReadConfigFile();
      public :
         //
-        map<string, string> configMap;
+        //map<string, string> configMap;
 
 };
 

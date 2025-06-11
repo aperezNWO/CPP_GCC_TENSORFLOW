@@ -24,12 +24,12 @@ HostApplication=
 UseCustomMakefile=0
 CustomMakefile=
 CommandLine=-o TensorFlowApp64_C.dll
-Folders=doc
+Folders=doc,include
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0
-UnitCount=5
+UnitCount=6
 
 [VersionInfo]
 Major=1
@@ -63,7 +63,7 @@ BuildCmd=
 [Unit3]
 FileName=_tensorflow_cpp\include\tensorFlowApp.h
 CompileCpp=1
-Folder=
+Folder=include
 Compile=1
 Link=1
 Priority=1000
@@ -95,6 +95,16 @@ FileName=..\doc\straregy.txt
 Folder=doc
 Compile=0
 Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit6]
+FileName=_tensorflow_cpp\include\Algorithm.h
+CompileCpp=1
+Folder=include
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

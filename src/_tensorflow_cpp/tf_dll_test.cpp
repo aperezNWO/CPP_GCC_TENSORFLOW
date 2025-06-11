@@ -2,7 +2,7 @@
 
 1) TOOLCHAIN : C:\msys64\ucrt64\bin (CHANGE PATH)
 
-2) g++ -o TensorFlowAppCPP.exe tf_dll_test.cpp 
+2) g++ -std=c++20 -o TensorFlowAppCPP.exe tf_dll_test.cpp 
 
 3) UTILIZAR PROYECDTO CPP_GCC_TENSORFLOW.DEV (Embarcadero Dev C++) PROVISIONALMENTE PARA 
    
@@ -17,6 +17,7 @@
 
 typedef const char* (*GetTensorFlowAPIVersionFunc)();  // Define function pointer type
 typedef const char* (*GetTensorFlowAPPVersionFunc)();  // Define function pointer type
+typedef const char* (*GetCPPSTDVersionFunc)();         // Define function pointer type
 
 
 int main() {
@@ -58,7 +59,26 @@ int main() {
     const char* appVersion = GetTensorFlowAPPVersion();
     printf("'GetTensorFlowAPPVersion' : %s\n", appVersion);
     
+    //////////////////////////////////////////////////////
+    //GetCPPSTDVersion
+    //////////////////////////////////////////////////////
+    
+    
+    GetCPPSTDVersionFunc GetCPPSTDVersion = (GetCPPSTDVersionFunc)GetProcAddress(hDLL, "GetCPPSTDVersion");
+    if (!GetCPPSTDVersion) {
+        printf("Could not locate the function 'GetCPPSTDVersion'.\n");
+        FreeLibrary(hDLL);
+        return 1;
+    }
+
+    // Call the function
+    const char* cppSTDVersion = GetCPPSTDVersion();
+    printf("'GetCPPSTDVersion' : %s\n", cppSTDVersion);
+    
+    /////////////////////////////////////////////////////////////////////
     // Clean up
+    /////////////////////////////////////////////////////////////////////
+
     FreeLibrary(hDLL);
     return 0;
 }
