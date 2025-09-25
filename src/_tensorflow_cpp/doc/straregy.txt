@@ -8,17 +8,17 @@
 
 	-- [_] Play basic games / algorhtimh / challenges;  against itself.
 	
-        -- [_] Sudoku.
+        -- [_] Sudoku (logic problems).
         
-        -- [_] Shortest Path.
+        -- [_] Hanoi (viable but not optimal).
+			
+		-- [_] Shortest Path.
         
         -- [_] Tetris.
         
         -- [_] Chess.
         
-        -- [_] Hanoi.
-        
-        -- [_] TIC-TAC-TOE.
+        -- [_] TIC-TAC-TOE (ok).
 
 	-- [_] TIC-TAC-TOE GAME.
 	
