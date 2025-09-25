@@ -1,0 +1,30 @@
+/////////////////////////////////////////////
+// STRATEGY
+/////////////////////////////////////////////
+
+-- [_] Machine Learning / Artificial Intelligence / Neural Networks example.
+
+	-- [_] https://chat.qwen.ai/c/7d46d2ce-70a5-4c9f-ba4c-d7ce475527ed.
+
+	-- [_] Play basic games / algorhtimh / challenges;  against itself.
+	
+        -- [_] Sudoku.
+        
+        -- [_] Shortest Path.
+        
+        -- [_] Tetris.
+        
+        -- [_] Chess.
+        
+        -- [_] Hanoi.
+        
+        -- [_] TIC-TAC-TOE.
+
+	-- [_] TIC-TAC-TOE GAME.
+	
+		-- [_] Integrate isolated demo with Tensorflow.
+		
+		-- [_] Create isolated demo -> ChessAI.cpp.
+	
+			
+/////////////////////////////////////////////
