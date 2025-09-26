@@ -7,11 +7,22 @@
 */
 
 #include <iostream>
+#include <string>
+#include <cctype>
 #include <vector>
 #include <cmath>
 #include <random>
 #include <algorithm>
 #include <ctime>
+#ifdef _WIN32
+    #include <conio.h>
+    #include <windows.h>
+    #define CLEAR_SCREEN() system("cls")
+#else
+    #include <unistd.h>
+    #define CLEAR_SCREEN() system("clear")
+#endif
+
 
 // Random number generator
 std::random_device rd;
@@ -194,6 +205,29 @@ int selectMove(const std::vector<double>& output, const TicTacToe& game) {
     return std::distance(masked.begin(), std::max_element(masked.begin(), masked.end()));
 }
 
+int selectMoveWithSoftmax(const std::vector<double>& output, const TicTacToe& game) {
+    std::vector<double> logits = output;
+    maskOutputs(logits, game); // Set invalid moves to very low value
+
+    // Apply softmax to turn into probabilities
+    double maxLogit = *std::max_element(logits.begin(), logits.end());
+    double sumExp = 0.0;
+    std::vector<double> probs;
+
+    for (double logit : logits) {
+        double expVal = std::exp(logit - maxLogit); // Stable softmax
+        probs.push_back(expVal);
+        sumExp += expVal;
+    }
+
+    // Normalize
+    for (double& p : probs) p /= sumExp;
+
+    // Sample from distribution
+    std::discrete_distribution<> dist(probs.begin(), probs.end());
+    return dist(gen); // gen = global random generator
+}
+
 // Simulate one self-play game and train the network
 void trainStep(NeuralNetwork& net) {
     TicTacToe game;
@@ -240,43 +274,99 @@ void trainStep(NeuralNetwork& net) {
     }
 }
 
-int main() {
-    NeuralNetwork net(9, 18, 9); // 9 inputs, 18 hidden, 9 outputs
+// Function to pause until user presses Enter
+void waitForEnter() {
+    std::cout << "Press Enter to continue...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    //std::cin.get(); // Wait for Enter (handles newline from previous input)
+}
 
-    std::cout << "Training Neural Network to play Tic-Tac-Toe...\n";
-    for (int epoch = 0; epoch < 5000; ++epoch) {
-        trainStep(net);
-        if (epoch % 500 == 0) {
-            std::cout << "Epoch " << epoch << " complete.\n";
+// Function to ask if user wants to continue
+bool askToContinue() {
+    std::string response;
+    while (true) {
+        std::cout << "\nDo you want to watch another game? (y/n): ";
+        std::getline(std::cin, response);
+
+        // Convert to lowercase for case-insensitive comparison
+        std::string lowerResponse;
+        std::transform(response.begin(), response.end(), std::back_inserter(lowerResponse),
+                      [](unsigned char c){ return std::tolower(c); });
+
+        if (lowerResponse == "y" || lowerResponse == "yes") {
+            return true;
+        } else if (lowerResponse == "n" || lowerResponse == "no") {
+            return false;
+        } else {
+            std::cout << "Please enter 'y' or 'n'.\n";
         }
     }
+}
 
-    // Test the trained network
-    std::cout << "\n=== TEST GAME: Network vs Itself ===\n";
+// Play one self-play test game
+void playTestGame(NeuralNetwork& net) {
     TicTacToe testGame;
-    int turn = 1;
+    int turn = 1; // X starts
+
+    std::cout << "\n=== TEST GAME: Network vs Itself ===\n";
 
     while (true) {
+        CLEAR_SCREEN(); // Clear screen at start of each move
+        std::cout << "\n=== TEST GAME: Network vs Itself ===\n";
         testGame.print();
 
         std::vector<double> input = boardToInput(testGame.board);
         net.forward(input);
-        int move = selectMove(net.output, testGame);
+        //int move = selectMove(net.output, testGame);
+        int move   = selectMoveWithSoftmax(net.output, testGame);
 
         std::cout << "Player " << (turn == 1 ? "X" : "O") << " plays at position " << move << "\n";
 
         testGame.board[move] = turn;
+
         int winner;
         if (testGame.isGameOver(winner)) {
+            CLEAR_SCREEN();
+            std::cout << "\n=== TEST GAME: Network vs Itself ===\n";
             testGame.print();
-            if (winner == 1) std::cout << "X wins!\n";
-            else if (winner == -1) std::cout << "O wins!\n";
-            else std::cout << "Draw!\n";
+            if (winner == 1)      std::cout << " X wins!\n";
+            else if (winner == -1) std::cout << " O wins!\n";
+            else                  std::cout << " Draw!\n";
+
             break;
         }
 
-        turn = -turn;
-    }
+        turn = -turn; // Switch player
 
+        // Optional: small delay to make it watchable
+        #ifdef _WIN32
+            Sleep(500); // 500 ms
+        #else
+            usleep(500000); // 500 ms
+        #endif
+    }
+}
+
+// Main loop: play multiple games until user says no
+int main() {
+    // Assume net is already trained — insert your training code here
+    NeuralNetwork net(9, 18, 9); // Same as before
+
+    std::cout << "Training neural network...\n";
+    for (int i = 0; i < 5000; ++i) {
+        trainStep(net); // Your self-play training step
+    }
+    std::cout << "Training complete!\n";
+
+    char buffer[10];
+    do {
+        playTestGame(net);
+
+        // Wait for user input before asking to continue
+        waitForEnter();
+
+    } while (askToContinue());
+
+    std::cout << "Thanks for watching! Goodbye!\n";
     return 0;
 }
