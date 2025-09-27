@@ -1,10 +1,18 @@
 /*
 
 1) TOOLCHAIN : C:\msys64\ucrt64\bin (CHANGE PATH)
+2) g++ -std=c++20 -o chessAIAppCPP.exe chessAIAppCPP.cpp 
+
+*/
+
+/*
+
+1) TOOLCHAIN : C:\msys64\ucrt64\bin (CHANGE PATH)
 
 2) g++ -std=c++20 -o chessAIAppCPP.exe chessAIAppCPP.cpp 
 
 */
+
 
 #include <iostream>
 #include <string>
@@ -14,6 +22,9 @@
 #include <random>
 #include <algorithm>
 #include <ctime>
+#include <fstream>   // For file reading/writing
+#include <iomanip>   // For std::setprecision
+
 #ifdef _WIN32
     #include <conio.h>
     #include <windows.h>
@@ -125,6 +136,83 @@ public:
             }
         }
     }
+    
+    //  ADD THE saveModel FUNCTION HERE, INSIDE THE CLASS
+	bool saveModel(const std::string& filename) {
+	        std::ofstream file(filename);
+	        if (!file.is_open()) {
+	            return false;
+	        }
+	
+	        auto writeMatrix = [&](const std::vector<std::vector<double>>& mat) {
+	            file << mat.size() << " " << mat[0].size() << "\n";
+	            for (const auto& row : mat) {
+	                for (double w : row) {
+	                    file << std::setprecision(10) << w << " ";
+	                }
+	                file << "\n";
+	            }
+	        };
+	
+	        auto writeVector = [&](const std::vector<double>& vec) {
+	            file << vec.size() << "\n";
+	            for (double v : vec) {
+	                file << std::setprecision(10) << v << " ";
+	            }
+	            file << "\n";
+	        };
+	
+	        writeMatrix(weights_ih);
+	        writeMatrix(weights_ho);
+	        writeVector(bias_h);
+	        writeVector(bias_o);
+	
+	        file.close();
+	        return true;
+	    }
+	    //
+	    // Loads the model from a text file
+	bool loadModel(const std::string& filename) {
+	    std::ifstream file(filename);
+	    if (!file.is_open()) {
+	        return false; // File not found or can't open
+	    }
+	
+	    auto readMatrix = [&](std::vector<std::vector<double>>& mat) -> bool {
+	        int rows, cols;
+	        if (!(file >> rows >> cols)) return false;
+	        mat.resize(rows, std::vector<double>(cols));
+	        for (auto& row : mat) {
+	            for (double& w : row) {
+	                if (!(file >> w)) return false;
+	            }
+	        }
+	        return true;
+	    };
+	
+	    auto readVector = [&](std::vector<double>& vec) -> bool {
+	        int size;
+	        if (!(file >> size)) return false;
+	        vec.resize(size);
+	        for (double& v : vec) {
+	            if (!(file >> v)) return false;
+	        }
+	        return true;
+	    };
+	
+	    // Read in the same order as saveModel()
+	    if (!readMatrix(weights_ih)) goto fail;
+	    if (!readMatrix(weights_ho)) goto fail;
+	    if (!readVector(bias_h))     goto fail;
+	    if (!readVector(bias_o))     goto fail;
+	
+	    file.close();
+	    return true;
+	
+	fail:
+	    file.close();
+	    return false;
+	}
 };
 
 // Tic-Tac-Toe Game Logic
@@ -311,7 +399,9 @@ void playTestGame(NeuralNetwork& net) {
     std::cout << "\n=== TEST GAME: Network vs Itself ===\n";
 
     while (true) {
-        CLEAR_SCREEN(); // Clear screen at start of each move
+
+		CLEAR_SCREEN(); // Clear screen at the start of each move
+		         
         std::cout << "\n=== TEST GAME: Network vs Itself ===\n";
         testGame.print();
 
@@ -344,29 +434,49 @@ void playTestGame(NeuralNetwork& net) {
         #else
             usleep(500000); // 500 ms
         #endif
+        
+
     }
 }
 
+
 // Main loop: play multiple games until user says no
 int main() {
-    // Assume net is already trained — insert your training code here
-    NeuralNetwork net(9, 18, 9); // Same as before
+    const std::string modelFile = "tictactoe_model.txt";
+    NeuralNetwork net(9, 18, 9); // Create network (random at first)
 
-    std::cout << "Training neural network...\n";
-    for (int i = 0; i < 5000; ++i) {
-        trainStep(net); // Your self-play training step
+    std::cout << "Looking for saved model: " << modelFile << "\n";
+
+    if (net.loadModel(modelFile)) {
+        std::cout << " Successfully loaded pretrained model.\n";
+    } else {
+        std::cout << " Model not found or corrupted. Starting training...\n";
+
+        // Train for 5000 self-play games
+        for (int i = 0; i < 5000; ++i) {
+            trainStep(net);
+            if (i % 500 == 0)
+                std::cout << "Epoch " << i << " complete.\n";
+        }
+
+        // Save for next time
+        if (net.saveModel(modelFile)) {
+            std::cout << " Final model saved to '"<< modelFile << "'\n";
+        } else {
+            std::cerr << " Failed to save model after training!\n";
+        }
     }
-    std::cout << "Training complete!\n";
 
-    char buffer[10];
+	//
+	waitForEnter();
+	        
+    // Now run interactive test games
     do {
         playTestGame(net);
-
-        // Wait for user input before asking to continue
         waitForEnter();
-
     } while (askToContinue());
 
     std::cout << "Thanks for watching! Goodbye!\n";
     return 0;
 }
+
