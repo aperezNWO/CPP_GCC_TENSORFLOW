@@ -111,9 +111,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit7]
-FileName=_tensorflow_cpp\chessAIAppCPP.cpp
+FileName=_tensorflow_cpp\include\chessAIAppCPP.cpp
 CompileCpp=1
-Folder=_tensorflow_cpp
+Folder=_tensorflow_cpp/include
 Compile=1
 Link=1
 Priority=1000

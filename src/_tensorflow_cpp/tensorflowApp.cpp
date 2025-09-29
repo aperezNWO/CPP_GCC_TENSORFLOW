@@ -97,4 +97,3 @@ DLL_EXPORT const char* GetCPPSTDVersion()
     }
     return version.c_str();
 }
-
