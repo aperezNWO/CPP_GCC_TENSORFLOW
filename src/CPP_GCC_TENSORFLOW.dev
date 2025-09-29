@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0
-UnitCount=12
+UnitCount=14
 
 [VersionInfo]
 Major=1
@@ -113,7 +113,7 @@ BuildCmd=
 [Unit7]
 FileName=_tensorflow_cpp\include\chessAIAppCPP.cpp
 CompileCpp=1
-Folder=_tensorflow_cpp/include
+Folder=_tensorflow_cpp
 Compile=1
 Link=1
 Priority=1000
@@ -165,6 +165,26 @@ FileName=_tensorflow_c\Makefile.win
 Folder=_tensorflow_c
 Compile=0
 Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit13]
+FileName=_tensorflow_cpp\include\chessAIAppCpp.h
+CompileCpp=1
+Folder=_tensorflow_cpp/include
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit14]
+FileName=_tensorflow_cpp\tf_exe_test.cpp
+CompileCpp=1
+Folder=_tensorflow_cpp
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

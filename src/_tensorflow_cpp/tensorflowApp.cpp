@@ -18,9 +18,6 @@ g++ -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowApp.cpp -
 
 g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowApp.cpp -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS
 
-
-
-
 3) UTILIZAR PROYECDTO CPP_GCC_TENSORFLOW.DEV (Embarcadero Dev C++) PROVISIONALMENTE PARA 
    
    A) VISUALIZAR Y EDITAR ARCHIVOS.
@@ -31,7 +28,7 @@ g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFl
 
 
 #include "tensorFlowApp.h"
-
+#include "chessAIAppCpp.h"
 
 //
 TensorFlowApp::TensorFlowApp(): Algorithm(false)
@@ -63,11 +60,71 @@ std::string TensorFlowApp::GetTensorFlowAppVersion()
     return "UNKNOWN"; 
 }
 
+bool TensorFlowApp::RunTicTacToeSelfPlay(TicTacToeResult& result) {
+	//
+    NeuralNetwork net(9, 18, 9);
+    const std::string modelFile = "tictactoe_model.txt";
+
+    if (!net.loadModel(modelFile)) {
+        std::cout << "[Training] No model found. Training 5000 games...\n";
+        for (int i = 0; i < 5000; ++i) trainStep(net);
+        net.saveModel(modelFile);
+        std::cout << "[Saved] Model saved to '" << modelFile << "'\n";
+    }
+
+    // Play one game
+    TicTacToe game;
+    int turn = 1;
+    std::vector<int> moves;
+
+    while (true) {
+        std::vector<double> input = boardToInput(game.board);
+        net.forward(input);
+        int move = selectMove(net.output, game);
+        game.board[move] = turn;
+        moves.push_back(move);
+
+        int winner;
+        if (game.isGameOver(winner)) {
+            result.winner = winner;
+            break;
+        }
+        turn = -turn;
+    }
+	
+    // Copy results
+    for (int i = 0; i < 9; ++i) {
+        result.board[i] = game.board[i];
+        result.moves[i] = (i < static_cast<int>(moves.size())) ? moves[i] : -1;
+    }
+    result.moveCount = static_cast<int>(moves.size());
+	
+    return true;
+}
 
 
 /////////////////////////////////////////////////////////////////////
 // DLL ENTRY POINTS
 /////////////////////////////////////////////////////////////////////
+
+DLL_EXPORT bool PlayTicTacToeGame(int* boardOut, int* movesOut, int* winnerOut, int* moveCountOut) {
+    try {
+        static TensorFlowApp app;
+        TicTacToeResult result{};
+        if (!app.RunTicTacToeSelfPlay(result)) return false;
+
+        for (int i = 0; i < 9; ++i) {
+            boardOut[i] = result.board[i];
+            movesOut[i] = result.moves[i];
+        }
+        *winnerOut = result.winner;
+        *moveCountOut = result.moveCount;
+
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
 
 DLL_EXPORT const char* GetTensorFlowAPIVersion() 
 {
