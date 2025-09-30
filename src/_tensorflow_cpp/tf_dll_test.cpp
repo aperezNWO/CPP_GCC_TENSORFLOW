@@ -15,6 +15,16 @@
 
 #include <stdio.h>
 #include <windows.h>
+#include <iostream>
+#include <string>
+#include <cctype>
+#include <vector>
+#include <cmath>
+#include <random>
+#include <algorithm>
+#include <ctime>
+#include <fstream>   // For file reading/writing
+#include <iomanip>   // For std::setprecision
 
 typedef const char* (*GetTensorFlowAPIVersionFunc)();  // Define function pointer type
 typedef const char* (*GetTensorFlowAPPVersionFunc)();  // Define function pointer type
@@ -22,6 +32,36 @@ typedef const char* (*GetCPPSTDVersionFunc)();         // Define function pointe
 
 typedef const char* (*GetStringFunc)();
 typedef bool (*PlayTTTFunc)(int*, int*, int*, int*);
+
+// Function to pause until user presses Enter
+void waitForEnter() {
+    std::cout << "Press Enter to continue...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    //std::cin.get(); // Wait for Enter (handles newline from previous input)
+}
+
+// Function to ask if user wants to continue
+bool askToContinue() {
+    std::string response;
+    while (true) {
+        std::cout << "\nDo you want to watch another game? (y/n): ";
+        std::getline(std::cin, response);
+
+        // Convert to lowercase for case-insensitive comparison
+        std::string lowerResponse;
+        std::transform(response.begin(), response.end(), std::back_inserter(lowerResponse),
+                      [](unsigned char c){ return std::tolower(c); });
+
+        if (lowerResponse == "y" || lowerResponse == "yes") {
+            return true;
+        } else if (lowerResponse == "n" || lowerResponse == "no") {
+            return false;
+        } else {
+            std::cout << "Please enter 'y' or 'n'.\n";
+        }
+    }
+}
+
 
 int main() {
     // Load the DLL
@@ -81,7 +121,7 @@ int main() {
     ///////////////////////////////////////////////////
     // === New Function: PlayTicTacToeGame ===
     ///////////////////////////////////////////////////
-    
+
     PlayTTTFunc PlayTicTacToeGame = (PlayTTTFunc)GetProcAddress(hDLL, "PlayTicTacToeGame");
     if (!PlayTicTacToeGame) {
         printf("Could not locate 'PlayTicTacToeGame'\n");
@@ -89,20 +129,26 @@ int main() {
         return 1;
     }
 
-    int board[9], moves[9], winner, moveCount;
-    if (PlayTicTacToeGame(board, moves, &winner, &moveCount)) {
-        printf("\n--- TIC-TAC-TOE GAME RESULT ---\n");
-        for (int i = 0; i < 9; ++i) {
-            printf("%c%c", " XO."[board[i] + 1], (i+1) % 3 == 0 ? '\n' : ' ');
-        }
-        printf("Winner: %s\n", winner == 1 ? "X" : winner == -1 ? "O" : "Draw");
-        printf("Moves: ");
-        for (int i = 0; i < moveCount; ++i) printf("%d ", moves[i]);
-        printf("\n");
-    } else {
-        printf("Game execution failed.\n");
-    }
+   	do 
+	{
+		//
+	    int board[9], moves[9], winner, moveCount;
+	    
+		// RETURN A MATRIX OF BOARD GAME STEPS
+		//
+	    if (PlayTicTacToeGame(board, moves, &winner, &moveCount)) {
+	        printf("\n--- TIC-TAC-TOE GAME RESULT ---\n");
+	        printf("Winner: %s\n", winner == 1 ? "X" : winner == -1 ? "O" : "Draw");
+	        printf("Moves: ");
+	        for (int i = 0; i < moveCount; ++i) printf("%d ", moves[i]);
+	        printf("\n");
+	    } else {
+	        printf("Game execution failed.\n");
+	    }
+		
+	} while (askToContinue());
 
+    std::cout << "Thanks for watching! Goodbye!\n";
 
     /////////////////////////////////////////////////////////////////////
     // Clean up

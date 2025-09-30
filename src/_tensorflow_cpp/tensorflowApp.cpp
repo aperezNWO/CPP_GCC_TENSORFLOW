@@ -80,9 +80,25 @@ bool TensorFlowApp::RunTicTacToeSelfPlay(TicTacToeResult& result) {
     while (true) {
         std::vector<double> input = boardToInput(game.board);
         net.forward(input);
-        int move = selectMove(net.output, game);
+        
+		//int move = selectMove(net.output, game);
+        int move   = selectMoveWithSoftmax(net.output, game);
+        
         game.board[move] = turn;
         moves.push_back(move);
+
+
+        //CLEAR_SCREEN(); 
+        system("cls");
+        
+        /*
+		for (int i = 0; i < 9; ++i) {
+            printf("%c%c", " XO."[game.board[i] + 1], (i+1) % 3 == 0 ? '\n' : ' ');
+        }*/
+        
+        game.print();
+        
+        waitForEnter();
 
         int winner;
         if (game.isGameOver(winner)) {

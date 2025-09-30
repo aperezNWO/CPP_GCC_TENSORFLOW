@@ -5,14 +5,6 @@
 
 */
 
-/*
-
-1) TOOLCHAIN : C:\msys64\ucrt64\bin (CHANGE PATH)
-
-2) g++ -std=c++20 -o chessAIAppCPP.exe chessAIAppCPP.cpp 
-
-*/
-
 
 #include <iostream>
 #include <string>

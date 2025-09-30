@@ -16,7 +16,6 @@
 #include <iomanip>   // For std::setprecision
 
 
-
 // Random number generator
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -344,34 +343,6 @@ void trainStep(NeuralNetwork& net) {
     }
 }
 
-// Function to pause until user presses Enter
-void waitForEnter() {
-    std::cout << "Press Enter to continue...";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    //std::cin.get(); // Wait for Enter (handles newline from previous input)
-}
-
-// Function to ask if user wants to continue
-bool askToContinue() {
-    std::string response;
-    while (true) {
-        std::cout << "\nDo you want to watch another game? (y/n): ";
-        std::getline(std::cin, response);
-
-        // Convert to lowercase for case-insensitive comparison
-        std::string lowerResponse;
-        std::transform(response.begin(), response.end(), std::back_inserter(lowerResponse),
-                      [](unsigned char c){ return std::tolower(c); });
-
-        if (lowerResponse == "y" || lowerResponse == "yes") {
-            return true;
-        } else if (lowerResponse == "n" || lowerResponse == "no") {
-            return false;
-        } else {
-            std::cout << "Please enter 'y' or 'n'.\n";
-        }
-    }
-}
 
 
 

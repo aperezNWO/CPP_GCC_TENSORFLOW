@@ -14,6 +14,7 @@ using namespace std;
 // Forward declaration of class
 class TensorFlowApp;
 
+
 // C-style export types
 extern "C" {
     typedef struct {
@@ -26,7 +27,14 @@ extern "C" {
     bool PlayTicTacToeGame(int* boardOut, int* movesOut, int* winnerOut, int* moveCountOut);
 }
 
+// Function to pause until user presses Enter
+void waitForEnter() {
+    std::cout << "Press Enter to continue...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    //std::cin.get(); // Wait for Enter (handles newline from previous input)
+}
 
+//
 class TensorFlowApp :
 	public Algorithm
 {
