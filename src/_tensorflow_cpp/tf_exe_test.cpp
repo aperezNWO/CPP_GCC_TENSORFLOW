@@ -137,11 +137,6 @@ bool /*TensorFlowApp::*/RunTicTacToeSelfPlay(TicTacToeResult& result) {
 
         CLEAR_SCREEN(); 
         
-        /*
-		for (int i = 0; i < 9; ++i) {
-            printf("%c%c", " XO."[game.board[i] + 1], (i+1) % 3 == 0 ? '\n' : ' ');
-        }*/
-        
         game.print();
         
         waitForEnter();
@@ -185,48 +180,6 @@ bool PlayTicTacToeGame(int* boardOut, int* movesOut, int* winnerOut, int* moveCo
         return false;
     }
 }
-
-/*
-int main()
-{
-	const std::string modelFile = "tictactoe_model.txt";
-    NeuralNetwork net(9, 18, 9); // Create network (random at first)
-
-    std::cout << "Looking for saved model: " << modelFile << "\n";
-
-    if (net.loadModel(modelFile)) {
-        std::cout << " Successfully loaded pretrained model.\n";
-    } else {
-        std::cout << " Model not found or corrupted. Starting training...\n";
-
-        // Train for 5000 self-play games
-        for (int i = 0; i < 5000; ++i) {
-            trainStep(net);
-            if (i % 500 == 0)
-                std::cout << "Epoch " << i << " complete.\n";
-        }
-
-        // Save for next time
-        if (net.saveModel(modelFile)) {
-            std::cout << " Final model saved to '"<< modelFile << "'\n";
-        } else {
-            std::cerr << " Failed to save model after training!\n";
-        }
-    }
-
-	//
-	waitForEnter();
-	        
-    // Now run interactive test games
-    do {
-        playTestGame(net);
-        waitForEnter();
-    } while (askToContinue());
-
-    std::cout << "Thanks for watching! Goodbye!\n";
-    
-	return 0;
-}*/
 
 int main()
 {

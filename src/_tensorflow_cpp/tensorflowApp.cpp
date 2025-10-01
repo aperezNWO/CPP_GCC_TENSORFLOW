@@ -28,6 +28,7 @@ g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFl
 
 
 #include "tensorFlowApp.h"
+//#include "chessAIAppCppOnline.h"
 #include "chessAIAppCpp.h"
 
 //
@@ -60,8 +61,7 @@ std::string TensorFlowApp::GetTensorFlowAppVersion()
     return "UNKNOWN"; 
 }
 
-bool TensorFlowApp::RunTicTacToeSelfPlay(TicTacToeResult& result) {
-	//
+bool TensorFlowApp::RunTicTacToeSelfPlayOnline(TicTacToeResultOnline& result) {
     NeuralNetwork net(9, 18, 9);
     const std::string modelFile = "tictactoe_model.txt";
 
@@ -72,33 +72,24 @@ bool TensorFlowApp::RunTicTacToeSelfPlay(TicTacToeResult& result) {
         std::cout << "[Saved] Model saved to '" << modelFile << "'\n";
     }
 
-    // Play one game
     TicTacToe game;
     int turn = 1;
     std::vector<int> moves;
+    std::vector<std::vector<int>> boardHistory;
+
+    // Save initial state
+    boardHistory.push_back(game.board);
 
     while (true) {
         std::vector<double> input = boardToInput(game.board);
         net.forward(input);
-        
-		//int move = selectMove(net.output, game);
-        int move   = selectMoveWithSoftmax(net.output, game);
-        
+        int move = selectMoveWithSoftmax(net.output, game); // Non-deterministic
+
         game.board[move] = turn;
         moves.push_back(move);
 
-
-        //CLEAR_SCREEN(); 
-        system("cls");
-        
-        /*
-		for (int i = 0; i < 9; ++i) {
-            printf("%c%c", " XO."[game.board[i] + 1], (i+1) % 3 == 0 ? '\n' : ' ');
-        }*/
-        
-        game.print();
-        
-        waitForEnter();
+        // Save board state after move
+        boardHistory.push_back(game.board);
 
         int winner;
         if (game.isGameOver(winner)) {
@@ -107,14 +98,22 @@ bool TensorFlowApp::RunTicTacToeSelfPlay(TicTacToeResult& result) {
         }
         turn = -turn;
     }
-	
-    // Copy results
+
+    // Copy final board
     for (int i = 0; i < 9; ++i) {
-        result.board[i] = game.board[i];
+        result.finalBoard[i] = game.board[i];
         result.moves[i] = (i < static_cast<int>(moves.size())) ? moves[i] : -1;
     }
     result.moveCount = static_cast<int>(moves.size());
-	
+
+    // Copy history
+    result.historyCount = static_cast<int>(boardHistory.size());
+    for (int s = 0; s < result.historyCount && s < 10; ++s) {
+        for (int i = 0; i < 9; ++i) {
+            result.history[s][i] = boardHistory[s][i];
+        }
+    }
+
     return true;
 }
 
@@ -123,19 +122,10 @@ bool TensorFlowApp::RunTicTacToeSelfPlay(TicTacToeResult& result) {
 // DLL ENTRY POINTS
 /////////////////////////////////////////////////////////////////////
 
-DLL_EXPORT bool PlayTicTacToeGame(int* boardOut, int* movesOut, int* winnerOut, int* moveCountOut) {
+DLL_EXPORT bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result) {
     try {
         static TensorFlowApp app;
-        TicTacToeResult result{};
-        if (!app.RunTicTacToeSelfPlay(result)) return false;
-
-        for (int i = 0; i < 9; ++i) {
-            boardOut[i] = result.board[i];
-            movesOut[i] = result.moves[i];
-        }
-        *winnerOut = result.winner;
-        *moveCountOut = result.moveCount;
-
+        if (!app.RunTicTacToeSelfPlayOnline(*result)) return false;
         return true;
     } catch (...) {
         return false;

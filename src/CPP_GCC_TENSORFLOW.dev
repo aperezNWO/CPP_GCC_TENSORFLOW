@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=1
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0
-UnitCount=14
+UnitCount=15
 
 [VersionInfo]
 Major=1
@@ -183,6 +183,16 @@ BuildCmd=
 FileName=_tensorflow_cpp\tf_exe_test.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit15]
+FileName=_tensorflow_cpp\include\chessAIAppCppOnline.h
+CompileCpp=1
+Folder=_tensorflow_cpp/include
 Compile=1
 Link=1
 Priority=1000

@@ -26,12 +26,44 @@
 #include <fstream>   // For file reading/writing
 #include <iomanip>   // For std::setprecision
 
+struct TicTacToeResultOnline {
+    int finalBoard[9];
+    int moves[9];
+    int winner;
+    int moveCount;
+    int history[10][9];
+    int historyCount;
+};
+
+
 typedef const char* (*GetTensorFlowAPIVersionFunc)();  // Define function pointer type
 typedef const char* (*GetTensorFlowAPPVersionFunc)();  // Define function pointer type
 typedef const char* (*GetCPPSTDVersionFunc)();         // Define function pointer type
 
 typedef const char* (*GetStringFunc)();
-typedef bool (*PlayTTTFunc)(int*, int*, int*, int*);
+typedef bool (*PlayTTTFunc)(TicTacToeResultOnline*);
+
+
+
+// print board history
+void printBoard(const int* board) {
+    for (int i = 0; i < 9; ++i) {
+        char c = '.';
+        if (board[i] == 1) c = 'X';
+        else if (board[i] == -1) c = 'O';
+        std::cout << c;
+        if ((i+1) % 3 == 0) std::cout << '\n';
+    }
+    std::cout << "---\n";
+}
+
+#ifdef _WIN32
+    #include <windows.h>
+    void sleep_ms(int ms) { Sleep(ms); }
+#else
+    #include <unistd.h>
+    void sleep_ms(int ms) { usleep(ms * 1000); }
+#endif
 
 // Function to pause until user presses Enter
 void waitForEnter() {
@@ -121,34 +153,51 @@ int main() {
     ///////////////////////////////////////////////////
     // === New Function: PlayTicTacToeGame ===
     ///////////////////////////////////////////////////
-
-    PlayTTTFunc PlayTicTacToeGame = (PlayTTTFunc)GetProcAddress(hDLL, "PlayTicTacToeGame");
+    
+    PlayTTTFunc PlayTicTacToeGame = (PlayTTTFunc)GetProcAddress(hDLL, "PlayTicTacToeGameWithHistory");
     if (!PlayTicTacToeGame) {
-        printf("Could not locate 'PlayTicTacToeGame'\n");
+        printf("Could not locate 'PlayTicTacToeGameWithHistory'\n");
         FreeLibrary(hDLL);
         return 1;
     }
 
-   	do 
-	{
-		//
-	    int board[9], moves[9], winner, moveCount;
-	    
-		// RETURN A MATRIX OF BOARD GAME STEPS
-		//
-	    if (PlayTicTacToeGame(board, moves, &winner, &moveCount)) {
-	        printf("\n--- TIC-TAC-TOE GAME RESULT ---\n");
-	        printf("Winner: %s\n", winner == 1 ? "X" : winner == -1 ? "O" : "Draw");
-	        printf("Moves: ");
-	        for (int i = 0; i < moveCount; ++i) printf("%d ", moves[i]);
-	        printf("\n");
-	    } else {
-	        printf("Game execution failed.\n");
-	    }
-		
-	} while (askToContinue());
+    do {
+        TicTacToeResultOnline result{};
+        if (!PlayTicTacToeGame(&result)) {
+            std::cerr << "Game execution failed.\n";
+            continue;
+        }
+
+        // === ANIMATE THE GAME ===
+        std::cout << "\n=== REPLAYING GAME: X vs O ===\n";
+
+        for (int step = 0; step < result.historyCount; ++step) {
+            system("cls");
+
+            std::cout << "\n=== MOVE " << step << " ===\n";
+            printBoard(result.history[step]);
+
+            if (step > 0) {
+                int move = result.moves[step - 1];
+                char player = (step % 2 == 1) ? 'X' : 'O';
+                std::cout << "Player " << player << " plays at position " << move << "\n";
+            }
+
+#ifdef _WIN32
+            Sleep(600);
+#else
+            usleep(600000);
+#endif
+        }
+
+        if (result.winner == 1)      std::cout << " X wins!\n";
+        else if (result.winner == -1) std::cout << " O wins!\n";
+        else                          std::cout << " Draw!\n";
+
+    } while (askToContinue());
 
     std::cout << "Thanks for watching! Goodbye!\n";
+    
 
     /////////////////////////////////////////////////////////////////////
     // Clean up

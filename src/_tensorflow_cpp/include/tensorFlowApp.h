@@ -18,13 +18,18 @@ class TensorFlowApp;
 // C-style export types
 extern "C" {
     typedef struct {
-        int board[9];
-        int moves[9]; // -1 if not used
-        int winner;   // 1=X, -1=O, 0=draw
+        int finalBoard[9];
+        int moves[9];
+        int winner;
         int moveCount;
-    } TicTacToeResult;
 
-    bool PlayTicTacToeGame(int* boardOut, int* movesOut, int* winnerOut, int* moveCountOut);
+        // NEW: Include history
+        int history[10][9];   // Up to 10 states (initial + 9 moves)
+        int historyCount;     // Actual number of states
+    } TicTacToeResultOnline;
+
+    // Now expose a function that fills all fields
+    bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result);
 }
 
 // Function to pause until user presses Enter
@@ -46,11 +51,8 @@ class TensorFlowApp :
         const char*  GetTensorFlowAPIVersion();
         std::string  GetTensorFlowAppVersion(); 
         //
-        //int          ReadConfigFile();
      public :
         //
-        //map<string, string> configMap;
-        bool RunTicTacToeSelfPlay(TicTacToeResult& result);
-
+        bool RunTicTacToeSelfPlayOnline(TicTacToeResultOnline& result);    
 };
 
