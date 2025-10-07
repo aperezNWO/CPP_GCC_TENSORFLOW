@@ -150,6 +150,8 @@ int main() {
     const char* cppSTDVersion = GetCPPSTDVersion();
     printf("'GetCPPSTDVersion' : %s\n", cppSTDVersion);
     
+    askToContinue();
+    
     ///////////////////////////////////////////////////
     // === New Function: PlayTicTacToeGame ===
     ///////////////////////////////////////////////////

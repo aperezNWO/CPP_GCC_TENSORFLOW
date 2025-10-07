@@ -27,9 +27,9 @@ CommandLine=-o TensorFlowApp64_C.dll
 Folders=_tensorflow_c,_tensorflow_cpp,_tensorflow_cpp/doc,_tensorflow_cpp/include
 IncludeVersionInfo=0
 SupportXPThemes=0
-CompilerSet=1
-CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0
-UnitCount=15
+CompilerSet=0
+CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
+UnitCount=16
 
 [VersionInfo]
 Major=1
@@ -71,11 +71,11 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit4]
-FileName=_tensorflow_cpp\__test\tensorflow.ini
-CompileCpp=0
-Folder=_tensorflow_cpp
-Compile=0
-Link=0
+FileName=_tensorflow_cpp\include\Algorithm.h
+CompileCpp=1
+Folder=_tensorflow_cpp/include
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
@@ -91,26 +91,16 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit5]
-FileName=_tensorflow_cpp\include\Algorithm.h
-Folder=_tensorflow_cpp/include
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-CompileCpp=1
-
-[Unit6]
 FileName=_tensorflow_cpp\doc\straregy.txt
-CompileCpp=1
 Folder=_tensorflow_cpp/doc
 Compile=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=1
 
-[Unit7]
+[Unit6]
 FileName=_tensorflow_cpp\include\chessAIAppCPP.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp
@@ -120,7 +110,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit8]
+[Unit7]
 FileName=_tensorflow_c\test_ocr_PB_dll.c
 CompileCpp=1
 Folder=_tensorflow_c
@@ -130,7 +120,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit9]
+[Unit8]
 FileName=_tensorflow_c\test_ocr_PB_exe.c
 CompileCpp=1
 Folder=_tensorflow_c
@@ -140,7 +130,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit10]
+[Unit9]
 FileName=_tensorflow_c\tf_dll_gen.c
 CompileCpp=1
 Folder=_tensorflow_c
@@ -150,7 +140,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit11]
+[Unit10]
 FileName=_tensorflow_c\tf_dll_test.c
 CompileCpp=1
 Folder=_tensorflow_c
@@ -160,8 +150,9 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit12]
+[Unit11]
 FileName=_tensorflow_c\Makefile.win
+CompileCpp=1
 Folder=_tensorflow_c
 Compile=0
 Link=0
@@ -169,17 +160,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit13]
+[Unit12]
 FileName=_tensorflow_cpp\include\chessAIAppCpp.h
-CompileCpp=1
 Folder=_tensorflow_cpp/include
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=1
 
-[Unit14]
+[Unit13]
 FileName=_tensorflow_cpp\tf_exe_test.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp
@@ -190,6 +181,25 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit15]
+FileName=_tensorflow_c\test_tic_tac_toe_tf.cpp
+CompileCpp=1
+Folder=_tensorflow_c
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit14]
+FileName=_tensorflow_cpp\doc\scm.txt
+Folder=_tensorflow_cpp/doc
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit16]
 FileName=_tensorflow_cpp\test_tic_tac_toe_tf.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp
