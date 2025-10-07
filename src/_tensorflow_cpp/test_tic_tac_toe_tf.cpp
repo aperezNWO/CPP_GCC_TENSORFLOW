@@ -1,13 +1,10 @@
 /*
 
 Compile with:
-g++ -std=c++17 -I"include" -L"lib" -o test_tic_tac_toe_tf.exe test_tic_tac_toe_tf.cpp -ltensorflow
-g++ -std=c++17  -I"include" -L"lib" -o test_tic_tac_toe_tf.exe test_tic_tac_toe_tf.cpp -ltensorflow -m64  -Wl,--subsystem,console
+g++ -std=c++17 -I"include" -L"lib" -o test_tic_tac_toe_tf.exe test_tic_tac_toe_tf.cpp -ltensorflow -m64 -Wl,--subsystem,console
 
 Run:
 ./test_tic_tac_toe_tf.exe
-
-COMPILA BIEN PERO EJECUTA CON ERRORES POR INCOMPATIBILIDAD DE MODELO TENSORFLOW DE PYTHON.
 
 */
 
@@ -20,7 +17,7 @@ COMPILA BIEN PERO EJECUTA CON ERRORES POR INCOMPATIBILIDAD DE MODELO TENSORFLOW 
 #include <chrono>
 
 // ======================================
-// Data Structure: Return full game result
+// Data Structure: Full Game Result
 // ======================================
 
 struct TicTacToeMove {
@@ -31,8 +28,8 @@ struct TicTacToeMove {
 struct TicTacToeGameResult {
     int finalBoard[9];
     std::vector<TicTacToeMove> moves;
-    int winner; // 1=X, -1=O, 0=draw
-    std::vector<std::vector<int>> boardHistory; // For animation
+    int winner;
+    std::vector<std::vector<int>> boardHistory;
     bool success;
 };
 
@@ -58,6 +55,8 @@ public:
         const char* tags = "serve";
         int ntags = 1;
 
+        std::cout << "🔍 Loading SavedModel from: " << export_dir << "\n";
+
         session = TF_LoadSessionFromSavedModel(opts, nullptr,
                                                export_dir,
                                                &tags, ntags,
@@ -71,29 +70,43 @@ public:
             return false;
         }
 
-        std::cout << "✅ Model loaded from: " << export_dir << "\n";
+        std::cout << "✅ Model loaded successfully.\n";
         return true;
     }
 
     bool PredictBestMove(const float input_board[9], int& best_move) {
-        if (!session) return false;
+        if (!session) {
+            std::cerr << "❌ Session not initialized.\n";
+            return false;
+        }
 
         // Input tensor: [1, 9]
         int64_t input_dims[] = {1, 9};
         TF_Tensor* input_tensor = TF_AllocateTensor(TF_FLOAT, input_dims, 2, sizeof(float) * 9);
         float* input_data = static_cast<float*>(TF_TensorData(input_tensor));
-        for (int i = 0; i < 9; ++i) input_data[i] = input_board[i];
+        for (int i = 0; i < 9; ++i) {
+            input_data[i] = input_board[i];
+        }
 
         // Output tensor
         int64_t output_dims[] = {1, 9};
         TF_Tensor* output_tensor = nullptr;
 
-        // Use Netron.app to verify these names
-        const char* input_name = "serving_default_dense_input";  // Adjust!
-        const char* output_name = "StatefulPartitionedCall:0";   // Adjust!
+        // 🔍 Use Netron.app to verify these names!
+        const char* input_name = "serving_default_dense_input";   // ← Adjust if needed
+        const char* output_name = "StatefulPartitionedCall";      // ← Adjust if needed
 
         TF_Output inputs[1] = {{TF_GraphOperationByName(graph, input_name), 0}};
         TF_Output outputs[1] = {{TF_GraphOperationByName(graph, output_name), 0}};
+
+        if (!inputs[0].oper || !outputs[0].oper) {
+            std::cerr << "❌ Invalid tensor name!\n";
+            std::cerr << "   Input '" << input_name << "': " << (inputs[0].oper ? "FOUND" : "NOT FOUND") << "\n";
+            std::cerr << "   Output '" << output_name << "': " << (outputs[0].oper ? "FOUND" : "NOT FOUND") << "\n";
+            std::cerr << "💡 Use Netron.app to inspect saved_model.pb and get correct names.\n";
+            TF_DeleteTensor(input_tensor);
+            return false;
+        }
 
         TF_SessionRun(session,
                       nullptr,
@@ -110,8 +123,47 @@ public:
 
         float* probs = static_cast<float*>(TF_TensorData(output_tensor));
 
-        // Find best move (will be masked later)
-        best_move = std::distance(probs, std::max_element(probs, probs + 9));
+        // ✅ Debug: Print raw output
+        std::cout << "📊 Model output: ";
+        for (int i = 0; i < 9; ++i) {
+            std::cout << probs[i] << " ";
+        }
+        std::cout << "\n";
+
+        // Find valid moves
+        std::vector<int> validMoves;
+        for (int i = 0; i < 9; ++i) {
+            if (input_board[i] == 0.0f) {
+                validMoves.push_back(i);
+            }
+        }
+
+        if (validMoves.empty()) {
+            TF_DeleteTensor(input_tensor);
+            TF_DeleteTensor(output_tensor);
+            return false;
+        }
+
+        // === SOFTMAX SAMPLING WITH TEMPERATURE ===
+        const float temperature = 1.5f; // >1.0 = more random, <1.0 = more greedy
+        std::vector<float> exp_probs;
+        float sum = 0.0f;
+
+        for (int idx : validMoves) {
+            float p = std::exp(probs[idx] / temperature);
+            exp_probs.push_back(p);
+            sum += p;
+        }
+
+        // Normalize
+        for (float& p : exp_probs) p /= sum;
+
+        // Sample move
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::discrete_distribution<> dist(exp_probs.begin(), exp_probs.end());
+
+        best_move = validMoves[dist(gen)];
 
         TF_DeleteTensor(input_tensor);
         TF_DeleteTensor(output_tensor);
@@ -134,7 +186,6 @@ TicTacToeGameResult PlaySelfPlayGameWithHistory() {
     TicTacToeGameResult result{};
     result.success = false;
 
-    // Initialize game state
     std::vector<int> board(9, 0); // 0=empty, 1=X, -1=O
     int turn = 1; // X starts
     std::vector<int> moveHistory;
@@ -142,10 +193,9 @@ TicTacToeGameResult PlaySelfPlayGameWithHistory() {
     // Save initial state
     result.boardHistory.push_back(board);
 
-    // Load model
     TensorFlowTicTacToe tf;
     if (!tf.LoadModel("tictactoe_tf_model")) {
-        std::cerr << "Failed to initialize TensorFlow model.\n";
+        std::cerr << "❌ Failed to initialize TensorFlow model.\n";
         return result;
     }
 
@@ -156,32 +206,16 @@ TicTacToeGameResult PlaySelfPlayGameWithHistory() {
 
         int move;
         if (!tf.PredictBestMove(input, move)) {
-            std::cerr << "Prediction failed!\n";
+            std::cerr << "❌ Prediction failed!\n";
             return result;
-        }
-
-        // Mask invalid moves manually
-        auto isValidMove = [&](int m) { return m >= 0 && m < 9 && board[m] == 0; };
-        if (!isValidMove(move)) {
-            // Fallback: pick first valid move
-            move = -1;
-            for (int i = 0; i < 9; ++i) {
-                if (board[i] == 0) {
-                    move = i;
-                    break;
-                }
-            }
-            if (move == -1) break; // No moves left
         }
 
         // Make move
         board[move] = turn;
         moveHistory.push_back(move);
-
-        // Save state after move
         result.boardHistory.push_back(board);
 
-        // Check game over
+        // Check win/draw
         auto isGameOver = [](const std::vector<int>& b, int& winner) -> bool {
             const int wins[8][3] = {
                 {0,1,2}, {3,4,5}, {6,7,8},
@@ -211,16 +245,11 @@ TicTacToeGameResult PlaySelfPlayGameWithHistory() {
         turn = -turn;
     }
 
-    // Copy final board
-    for (int i = 0; i < 9; ++i) {
-        result.finalBoard[i] = board[i];
-    }
-
-    // Copy moves
+    // Copy final data
+    for (int i = 0; i < 9; ++i) result.finalBoard[i] = board[i];
     for (size_t i = 0; i < moveHistory.size(); ++i) {
         result.moves.push_back({ moveHistory[i], (i % 2 == 0) ? 1 : -1 });
     }
-
     result.success = true;
     return result;
 }
@@ -259,7 +288,6 @@ void AnimateGame(const TicTacToeGameResult& result) {
                       << " plays at position " << move.position << "\n";
         }
 
-        // Pause for animation
         std::this_thread::sleep_for(std::chrono::milliseconds(800));
     }
 
@@ -269,33 +297,33 @@ void AnimateGame(const TicTacToeGameResult& result) {
 }
 
 // ======================================
-// Main Function
+// Main Function with Play Again Loop
 // ======================================
 
 int main() {
-    std::cout << "🎮 Starting Tic-Tac-Toe AI Self-Play...\n";
+    char playAgain = 'y';
 
-    // Generate full game with history
-    TicTacToeGameResult game = PlaySelfPlayGameWithHistory();
+    while (playAgain == 'y' || playAgain == 'Y') {
+#ifdef _WIN32
+        system("cls");
+#else
+        system("clear");
+#endif
 
-    if (!game.success) {
-        std::cerr << "❌ Game execution failed.\n";
-        return 1;
+        std::cout << "🎮 Starting Tic-Tac-Toe AI Self-Play...\n";
+
+        TicTacToeGameResult game = PlaySelfPlayGameWithHistory();
+
+        if (!game.success) {
+            std::cerr << "❌ Game execution failed.\n";
+        } else {
+            AnimateGame(game);
+        }
+
+        std::cout << "\nWould you like to play another game? (y/n): ";
+        std::cin >> playAgain;
     }
 
-    // Animate step-by-step
-    AnimateGame(game);
-
-    // Optional: Print raw data (for DLL use)
-    /*
-    std::cout << "\n--- RAW DATA (for DLL export) ---\n";
-    std::cout << "Winner: " << game.winner << "\n";
-    std::cout << "Moves: ";
-    for (auto m : game.moves) std::cout << m.position << " ";
-    std::cout << "\n";
-    */
-
-    std::cout << "\nPress Enter to exit...";
-    std::cin.get();
+    std::cout << "\n👋 Thanks for playing!\n";
     return 0;
 }
