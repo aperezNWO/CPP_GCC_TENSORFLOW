@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
-UnitCount=16
+UnitCount=17
 
 [VersionInfo]
 Major=1
@@ -203,6 +203,16 @@ BuildCmd=
 FileName=_tensorflow_cpp\test_tic_tac_toe_tf.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit17]
+FileName=_tensorflow_cpp\include\ticTacToeTF.h
+CompileCpp=1
+Folder=_tensorflow_cpp/include
 Compile=1
 Link=1
 Priority=1000

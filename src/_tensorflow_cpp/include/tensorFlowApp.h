@@ -31,6 +31,7 @@ extern "C" {
     bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result);
 }
 
+
 // Function to pause until user presses Enter
 void waitForEnter() {
     std::cout << "Press Enter to continue...";
@@ -52,6 +53,7 @@ class TensorFlowApp :
         //
      public :
         //
+        //bool PlayTicTacToeGameWithTensorFlow(TicTacToeGameResult* result);
         bool RunTicTacToeSelfPlayOnline(TicTacToeResultOnline& result);    
 };
 
