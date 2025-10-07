@@ -28,7 +28,6 @@ g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFl
 
 
 #include "tensorFlowApp.h"
-//#include "chessAIAppCppOnline.h"
 #include "chessAIAppCpp.h"
 
 //

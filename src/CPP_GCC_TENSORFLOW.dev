@@ -190,9 +190,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit15]
-FileName=_tensorflow_cpp\include\chessAIAppCppOnline.h
+FileName=_tensorflow_cpp\test_tic_tac_toe_tf.cpp
 CompileCpp=1
-Folder=_tensorflow_cpp/include
+Folder=_tensorflow_cpp
 Compile=1
 Link=1
 Priority=1000

@@ -2,8 +2,6 @@
 #define CHESSAIAPPCPP_H
 #endif
 
-
-
 #include <iostream>
 #include <string>
 #include <cctype>
