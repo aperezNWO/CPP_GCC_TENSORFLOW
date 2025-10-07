@@ -1,1 +1,0 @@
-https://www.tensorflow.org/install/lang_c?hl=es-419

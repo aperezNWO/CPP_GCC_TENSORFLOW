@@ -1,1 +1,20 @@
-https://www.tensorflow.org/install/lang_c?hl=es-419
+--[_] DOWNLOAD PACKAGE
+	--[_] https://www.tensorflow.org/install/lang_c?hl=es-419
+	--[_] https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-windows-x86_64-2.6.0.zip
+	
+--[_] GIT COMMANDS
+
+	  git add * 
+	  git commit -m"working folder update" -a 
+	  git push 
+	  git pull
+	    
+--[_] DISTRIBUTION FILES (__DIST FOLDER)
+
+	  Algorithm.dll
+	  Algorithm.ini
+	  Tensorflow.dll
+	  Tensorflow.ini
+	  TensorFlowAppCPP.dll
+	  tictactoe_model.txt
+ 	    
