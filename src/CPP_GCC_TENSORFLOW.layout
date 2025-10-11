@@ -43,8 +43,8 @@ TopLine=1
 LeftChar=1
 [Editor_13]
 CursorCol=1
-CursorRow=23
-TopLine=1
+CursorRow=22
+TopLine=10
 LeftChar=1
 [Editor_14]
 CursorCol=1
@@ -79,10 +79,10 @@ LeftChar=1
 [Editor_17]
 CursorCol=63
 CursorRow=145
-TopLine=111
+TopLine=126
 LeftChar=1
 [Editor_18]
 CursorCol=35
 CursorRow=33
-TopLine=1
+TopLine=28
 LeftChar=1
