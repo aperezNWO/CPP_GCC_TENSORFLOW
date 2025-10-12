@@ -19,7 +19,7 @@ CursorRow=65
 TopLine=58
 LeftChar=1
 [Editors]
-Order=25,17
+Order=
 Focused=25
 [Editor_4]
 CursorCol=1
