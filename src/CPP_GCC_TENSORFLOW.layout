@@ -11,12 +11,12 @@ LeftChar=1
 [Editor_2]
 CursorCol=1
 CursorRow=59
-TopLine=41
+TopLine=7
 LeftChar=1
 [Editor_1]
-CursorCol=22
-CursorRow=31
-TopLine=124
+CursorCol=1
+CursorRow=65
+TopLine=58
 LeftChar=1
 [Editors]
 Order=25,17
@@ -103,8 +103,8 @@ TopLine=1
 LeftChar=1
 [Editor_10]
 CursorCol=1
-CursorRow=198
-TopLine=91
+CursorRow=34
+TopLine=28
 LeftChar=1
 [Editor_22]
 CursorCol=19
