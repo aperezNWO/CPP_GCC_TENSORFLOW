@@ -1,11 +1,11 @@
 
 /*
 
-	g++ -std=c++20 -o tf_exe_test.exe tf_exe_test.cpp 
+	g++ -std=c++20 -o test_tic_tac_toe_exe.exe test_tic_tac_toe_exe.cpp
 
 */
 
-#include "include/chessAIAppCpp.h"
+#include "include/ticTacToeAIAppCpp.h"
 
 
 #ifdef _WIN32

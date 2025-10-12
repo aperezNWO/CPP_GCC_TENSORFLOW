@@ -12,11 +12,11 @@ gcc -I"include" -L"lib" -shared -static -static-libgcc -static-libstdc++ -m64 -o
 
 // COMPILE OK - NON STATIC
 
-g++ -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowApp.cpp -ltensorflow  -Wl,--subsystem,windows 
+g++ -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowAppCPP.cpp -ltensorflow  -Wl,--subsystem,windows 
 
 // NON STATIC - REFERENCE - INHERITANCE
 
-g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowApp.cpp -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS
+g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowAppCPP.cpp -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS
 
 3) UTILIZAR PROYECDTO CPP_GCC_TENSORFLOW.DEV (Embarcadero Dev C++) PROVISIONALMENTE PARA 
    
@@ -28,7 +28,7 @@ g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFl
 
 
 #include "tensorFlowApp.h"
-#include "chessAIAppCpp.h"
+#include "ticTacToeAIAppCpp.h"
 #include "ticTAcToeTF.h"
 
 //

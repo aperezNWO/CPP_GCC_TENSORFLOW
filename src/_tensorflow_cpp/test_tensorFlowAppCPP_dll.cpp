@@ -2,7 +2,7 @@
 
 1) TOOLCHAIN : C:\msys64\ucrt64\bin (CHANGE PATH)
 
-2) g++ -std=c++20 -o tf_dll_test.exe tf_dll_test.cpp 
+2) g++ -std=c++20 -o test_tensorFlowApp_dll.exe test_tensorFlowApp_dll.cpp 
 
 
 3) UTILIZAR PROYECDTO CPP_GCC_TENSORFLOW.DEV (Embarcadero Dev C++) PROVISIONALMENTE PARA 
