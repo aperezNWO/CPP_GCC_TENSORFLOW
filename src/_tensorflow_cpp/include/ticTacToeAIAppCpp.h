@@ -14,6 +14,22 @@
 #include <iomanip>   // For std::setprecision
 
 
+
+
+
+// C-style export types
+extern "C" {
+    typedef struct {
+        int board[9];
+        int moves[9]; // -1 if not used
+        int winner;   // 1=X, -1=O, 0=draw
+        int moveCount;
+    } TicTacToeResult;
+
+    bool PlayTicTacToeGame(int* boardOut, int* movesOut, int* winnerOut, int* moveCountOut);
+}
+
+
 // C-style export types
 extern "C" {
     typedef struct {
@@ -49,14 +65,14 @@ double sigmoidDerivative(double x) {
     return s * (1 - s);
 }
 
-class NeuralNetwork {
+class NeuralNetworkTicTacToe {
 public:
     std::vector<double> input, hidden, output;
     std::vector<std::vector<double>> weights_ih, weights_ho;
     std::vector<double> bias_h, bias_o;
     double learningRate = 0.1;
 
-    NeuralNetwork(int inputSize, int hiddenSize, int outputSize)
+    NeuralNetworkTicTacToe(int inputSize, int hiddenSize, int outputSize)
         : input(inputSize), hidden(hiddenSize), output(outputSize),
           weights_ih(hiddenSize, std::vector<double>(inputSize)),
           weights_ho(outputSize, std::vector<double>(hiddenSize)),
@@ -314,7 +330,7 @@ int selectMoveWithSoftmax(const std::vector<double>& output, const TicTacToe& ga
 }
 
 // Simulate one self-play game and train the network
-void trainStep(NeuralNetwork& net) {
+void trainStep(NeuralNetworkTicTacToe& net) {
     TicTacToe game;
     std::vector<std::pair<std::vector<double>, std::vector<double>>> history; // (state, move_prob)
 

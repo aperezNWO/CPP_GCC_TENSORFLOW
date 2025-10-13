@@ -62,7 +62,7 @@ std::string TensorFlowApp::GetTensorFlowAppVersion()
 
 //
 bool TensorFlowApp::RunTicTacToeSelfPlayOnline(TicTacToeResultOnline& result) {
-    NeuralNetwork net(9, 18, 9);
+    NeuralNetworkTicTacToe net(9, 18, 9);
     const std::string modelFile = "tictactoe_model.txt";
 
     if (!net.loadModel(modelFile)) {

@@ -26,11 +26,11 @@
 	
 			-- [_] https://chat.qwen.ai/c/6d3008ce-c294-42dd-8085-6bd3e877a8e7
 	
-		-- [_] Create standalone demo 
+		-- [x] Create standalone demo 
 		
-			-- [_] test_tic_tac_toe_exe.cpp.
+			-- [x] test_tic_tac_toe_exe.cpp.
 			
-			-- [_] SOFTMAX.
+			-- [x] SOFTMAX.
 			
 			-- [_] RELU.
 		
