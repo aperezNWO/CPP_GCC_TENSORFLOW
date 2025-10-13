@@ -16,7 +16,7 @@ g++ -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowAppCPP.cp
 
 // NON STATIC - REFERENCE - INHERITANCE
 
-g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowAppCPP.cpp -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS
+g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowAppCPP_DLL.cpp -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS
 
 3) UTILIZAR PROYECDTO CPP_GCC_TENSORFLOW.DEV (Embarcadero Dev C++) PROVISIONALMENTE PARA 
    
@@ -28,8 +28,7 @@ g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFl
 
 
 #include "tensorFlowApp.h"
-#include "ticTacToeAIAppCpp.h"
-#include "ticTAcToeTF.h"
+
 
 //
 TensorFlowApp::TensorFlowApp(): Algorithm(false)
@@ -119,97 +118,11 @@ bool TensorFlowApp::RunTicTacToeSelfPlayOnline(TicTacToeResultOnline& result) {
 }
 
 //
-/*
-bool TensorFlowApp::PlaySelfPlayGameWithHistory(TicTacToeGameResult& result) {
-    
-    result.success = false;
-
-    std::vector<int> board(9, 0); // 0=empty, 1=X, -1=O
-    int turn = 1; // X starts
-    std::vector<int> moveHistory;
-
-    // Save initial state
-    result.boardHistory.push_back(board);
-
-    TensorFlowTicTacToe tf;
-    if (!tf.LoadModel("tictactoe_tf_model")) {
-        std::cerr << "❌ Failed to initialize TensorFlow model.\n";
-        return result;
-    }
-
-    while (true) {
-        // Convert to float input
-        float input[9];
-        for (int i = 0; i < 9; ++i) input[i] = static_cast<float>(board[i]);
-
-        int move;
-        if (!tf.PredictBestMove(input, move)) {
-            std::cerr << "❌ Prediction failed!\n";
-            return result;
-        }
-
-        // Make move
-        board[move] = turn;
-        moveHistory.push_back(move);
-        result.boardHistory.push_back(board);
-
-        // Check win/draw
-        auto isGameOver = [](const std::vector<int>& b, int& winner) -> bool {
-            const int wins[8][3] = {
-                {0,1,2}, {3,4,5}, {6,7,8},
-                {0,3,6}, {1,4,7}, {2,5,8},
-                {0,4,8}, {2,4,6}
-            };
-            for (auto& w : wins) {
-                if (b[w[0]] != 0 && b[w[0]] == b[w[1]] && b[w[1]] == b[w[2]]) {
-                    winner = b[w[0]];
-                    return true;
-                }
-            }
-            if (std::find(b.begin(), b.end(), 0) == b.end()) {
-                winner = 0;
-                return true;
-            }
-            winner = 0;
-            return false;
-        };
-
-        int winner;
-        if (isGameOver(board, winner)) {
-            result.winner = winner;
-            break;
-        }
-
-        turn = -turn;
-    }
-
-    // Copy final data
-    for (int i = 0; i < 9; ++i) result.finalBoard[i] = board[i];
-    for (size_t i = 0; i < moveHistory.size(); ++i) {
-        result.moves.push_back({ moveHistory[i], (i % 2 == 0) ? 1 : -1 });
-    }
-    result.success = true;
-    
-	//
-	return result.succes;
-}
-*/
 
 /////////////////////////////////////////////////////////////////////
 // DLL ENTRY POINTS
 /////////////////////////////////////////////////////////////////////
-/*
-DLL_EXPORT bool PlayTicTacToeGameWithTensorFlow(TicTacToeGameResult* result)
-{
-    try {
-        static TensorFlowApp app;
-        if (!app.PlaySelfPlayGameWithHistory(*result)) return false;
-        return true;
-    } catch (...) {
-        return false;
-    }
-}
-*/
+
 
 DLL_EXPORT bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result) {
     try {

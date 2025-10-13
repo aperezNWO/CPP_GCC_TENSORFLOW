@@ -22,12 +22,25 @@
 
 	-- [_] TIC-TAC-TOE GAME.
 	
-		-- [_] https://chat.qwen.ai/c/7d46d2ce-70a5-4c9f-ba4c-d7ce475527ed.
-				
-		-- [_] Integrate isolated demo with Tensorflow.
-		
-		-- [_] Create isolated demo -> ChessAI.cpp.
-		
+		-- [_] SLC PROJECT 001 - Role=Developer
 	
+			-- [_] https://chat.qwen.ai/c/6d3008ce-c294-42dd-8085-6bd3e877a8e7
+	
+		-- [_] Create standalone demo 
+		
+			-- [_] test_tic_tac_toe_exe.cpp.
 			
+			-- [_] SOFTMAX.
+			
+			-- [_] RELU.
+		
+			-- [_] TENSORFLOW.
+			
+				-- [_] DJANGO_DEMO_LOCAL.
+			
+		-- [_] Integrate isolated demo with Tensorflow C++ DLL.	
+				
+			-- [_] Generic Switch with current method.	
+
 /////////////////////////////////////////////
+	

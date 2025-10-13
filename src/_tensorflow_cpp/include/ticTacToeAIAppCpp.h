@@ -14,6 +14,24 @@
 #include <iomanip>   // For std::setprecision
 
 
+// C-style export types
+extern "C" {
+    typedef struct {
+        int finalBoard[9];
+        int moves[9];
+        int winner;
+        int moveCount;
+
+        // NEW: Include history
+        int history[10][9];   // Up to 10 states (initial + 9 moves)
+        int historyCount;     // Actual number of states
+    } TicTacToeResultOnline;
+
+    // Now expose a function that fills all fields
+    bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result);
+}
+
+
 // Random number generator
 std::random_device rd;
 std::mt19937 gen(rd());

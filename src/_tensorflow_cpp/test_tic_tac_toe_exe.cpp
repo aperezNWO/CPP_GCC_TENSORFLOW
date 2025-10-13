@@ -107,7 +107,8 @@ bool askToContinue() {
     }
 }
 
-bool /*TensorFlowApp::*/RunTicTacToeSelfPlay(TicTacToeResult& result) {
+//
+bool RunTicTacToeSelfPlay(TicTacToeResult& result) {
 	//
     NeuralNetwork net(9, 18, 9);
     const std::string modelFile = "tictactoe_model.txt";
@@ -159,22 +160,26 @@ bool /*TensorFlowApp::*/RunTicTacToeSelfPlay(TicTacToeResult& result) {
     return true;
 }
 
+//
 bool PlayTicTacToeGame(int* boardOut, int* movesOut, int* winnerOut, int* moveCountOut) {
     try {
-        //static TensorFlowApp app;
-        
-        
+		
+		//        
         TicTacToeResult result{};
-        if (!/*app.*/RunTicTacToeSelfPlay(result)) return false;
-
+        
+        //
+		if (!/*app.*/RunTicTacToeSelfPlay(result)) return false;
+		//
         for (int i = 0; i < 9; ++i) {
             boardOut[i] = result.board[i];
             movesOut[i] = result.moves[i];
         }
+        
+		//
         *winnerOut = result.winner;
         *moveCountOut = result.moveCount;
-
-        
+		
+		//
 		return true;
     } catch (...) {
         return false;
@@ -183,7 +188,7 @@ bool PlayTicTacToeGame(int* boardOut, int* movesOut, int* winnerOut, int* moveCo
 
 int main()
 {
-	
+	//
 	do 
 	{
 	    int board[9], moves[9], winner, moveCount;

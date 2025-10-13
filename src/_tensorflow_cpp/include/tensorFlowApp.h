@@ -5,6 +5,8 @@
 
 #include <tensorflow/c/c_api.h>
 #include "Algorithm.h"
+#include "ticTacToeAIAppCpp.h"
+#include "ticTAcToeTF.h"
 
 #define DLL_EXPORT extern "C" __declspec(dllexport) __stdcall
 
@@ -14,22 +16,6 @@ using namespace std;
 class TensorFlowApp;
 
 
-// C-style export types
-extern "C" {
-    typedef struct {
-        int finalBoard[9];
-        int moves[9];
-        int winner;
-        int moveCount;
-
-        // NEW: Include history
-        int history[10][9];   // Up to 10 states (initial + 9 moves)
-        int historyCount;     // Actual number of states
-    } TicTacToeResultOnline;
-
-    // Now expose a function that fills all fields
-    bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result);
-}
 
 
 // Function to pause until user presses Enter
