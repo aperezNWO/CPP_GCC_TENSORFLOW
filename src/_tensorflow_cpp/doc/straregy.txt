@@ -28,12 +28,16 @@
 	
 		-- [x] Create standalone demo 
 		
-			-- [x] test_tic_tac_toe_exe.cpp.
+			-- [x] test_tic_tac_toe_exe.cpp (softmax and relu are implicit).
 			
-			-- [x] SOFTMAX.
+			-- [_] Other Options.
 			
-			-- [_] RELU.
+				-- [_] .
 		
+				-- [_] .
+
+				-- [_] .
+
 			-- [_] TENSORFLOW.
 			
 				-- [_] DJANGO_DEMO_LOCAL.

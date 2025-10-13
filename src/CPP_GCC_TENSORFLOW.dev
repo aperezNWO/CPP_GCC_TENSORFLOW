@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
-UnitCount=35
+UnitCount=36
 
 [VersionInfo]
 Major=1
@@ -51,7 +51,7 @@ AutoIncBuildNr=0
 SyncProduct=1
 
 [Unit2]
-FileName=_tensorflow_cpp\tensorFlowAppCPP_DLL.cpp
+FileName=_tensorflow_cpp\tensorFlowApp.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/tensorflow
 Compile=1
@@ -384,6 +384,16 @@ FileName=_tensorflow_cpp\__test\tictactoe_tf_model.zip
 Folder=_tensorflow_cpp/__test
 Compile=0
 Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit36]
+FileName=_tensorflow_cpp\include\tictactoe.h
+CompileCpp=1
+Folder=_tensorflow_cpp/include
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

@@ -16,7 +16,7 @@ g++ -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowAppCPP.cp
 
 // NON STATIC - REFERENCE - INHERITANCE
 
-g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowAppCPP_DLL.cpp -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS
+g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowApp.cpp -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS
 
 3) UTILIZAR PROYECDTO CPP_GCC_TENSORFLOW.DEV (Embarcadero Dev C++) PROVISIONALMENTE PARA 
    
@@ -60,36 +60,61 @@ std::string TensorFlowApp::GetTensorFlowAppVersion()
     return "UNKNOWN"; 
 }
 
-//
-bool TensorFlowApp::RunTicTacToeSelfPlayOnline(TicTacToeResultOnline& result) {
+
+bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
+    if (aiMode == TENSORFLOW) {
+        return false;
+    }
+
     NeuralNetworkTicTacToe net(9, 18, 9);
     const std::string modelFile = "tictactoe_model.txt";
 
-    if (!net.loadModel(modelFile)) {
-        std::cout << "[Training] No model found. Training 5000 games...\n";
+    if (aiMode != MINIMAX && !net.loadModel(modelFile)) {
+        //std::cout << "[Training] No model found. Training 5000 games...\n";
         for (int i = 0; i < 5000; ++i) trainStep(net);
         net.saveModel(modelFile);
-        std::cout << "[Saved] Model saved to '" << modelFile << "'\n";
+        //std::cout << "[Saved] Model saved to '" << modelFile << "'\n";
     }
 
     TicTacToe game;
-    int turn = 1;
-    std::vector<int> moves;
-    std::vector<std::vector<int>> boardHistory;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> starter(0, 1);
+    int turn = (starter(gen) == 0) ? 1 : -1;
 
-    // Save initial state
-    boardHistory.push_back(game.board);
+    std::vector<int> moves;
+
+    for (int i = 0; i < 9; ++i) {
+        result.history[0][i] = game.board[i];
+    }
+    result.historyCount = 1;
 
     while (true) {
-        std::vector<double> input = boardToInput(game.board);
-        net.forward(input);
-        int move = selectMoveWithSoftmax(net.output, game); // Non-deterministic
+        int move = -1;
+
+        if (aiMode == MINIMAX) {
+            move = minimaxMove(game.board, turn);
+        } else {
+            std::vector<double> input = boardToInput(game.board);
+            net.forward(input);
+            move = selectMove(net.output, game, aiMode, temperature);
+        }
+
+        if (move < 0 || move >= 9 || game.board[move] != 0) {
+            auto valid = game.getValidMoves();
+            if (valid.empty()) break;
+            move = valid[0];
+        }
 
         game.board[move] = turn;
         moves.push_back(move);
 
-        // Save board state after move
-        boardHistory.push_back(game.board);
+        if (result.historyCount < 10) {
+            for (int i = 0; i < 9; ++i) {
+                result.history[result.historyCount][i] = game.board[i];
+            }
+            result.historyCount++;
+        }
 
         int winner;
         if (game.isGameOver(winner)) {
@@ -99,40 +124,30 @@ bool TensorFlowApp::RunTicTacToeSelfPlayOnline(TicTacToeResultOnline& result) {
         turn = -turn;
     }
 
-    // Copy final board
     for (int i = 0; i < 9; ++i) {
         result.finalBoard[i] = game.board[i];
         result.moves[i] = (i < static_cast<int>(moves.size())) ? moves[i] : -1;
     }
     result.moveCount = static_cast<int>(moves.size());
 
-    // Copy history
-    result.historyCount = static_cast<int>(boardHistory.size());
-    for (int s = 0; s < result.historyCount && s < 10; ++s) {
-        for (int i = 0; i < 9; ++i) {
-            result.history[s][i] = boardHistory[s][i];
-        }
-    }
-
     return true;
 }
-
-//
 
 /////////////////////////////////////////////////////////////////////
 // DLL ENTRY POINTS
 /////////////////////////////////////////////////////////////////////
 
-
-DLL_EXPORT bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result) {
+DLL_EXPORT bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result, int aiMode, double temperature) 
+{
     try {
-        static TensorFlowApp app;
-        if (!app.RunTicTacToeSelfPlayOnline(*result)) return false;
-        return true;
+        if (!result) return false;
+        if (aiMode == TENSORFLOW) return false;
+        return RunTicTacToeSelfPlay(*result, aiMode, temperature);
     } catch (...) {
         return false;
     }
 }
+
 
 DLL_EXPORT const char* GetTensorFlowAPIVersion() 
 {
