@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
-UnitCount=39
+UnitCount=40
 
 [VersionInfo]
 Major=1
@@ -210,7 +210,7 @@ BuildCmd=
 CompileCpp=1
 
 [Unit26]
-FileName=_tensorflow_cpp\_tictactoe\test_tic_tac_toe_tf.cpp
+FileName=_tensorflow_cpp\_tictactoe\test_ticTacToeAIAppCPP.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/tictactoe
 Compile=1
@@ -220,16 +220,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit27]
-FileName=_tensorflow_cpp\_tictactoe\test_ticTacToeAIAppCPP.cpp
-Folder=_tensorflow_cpp/tictactoe
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-CompileCpp=1
-
-[Unit28]
 FileName=_tensorflow_cpp\_sortbenchmark\sort_model_9.txt
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=0
@@ -237,8 +227,9 @@ Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=1
 
-[Unit29]
+[Unit28]
 FileName=_tensorflow_cpp\_sortbenchmark\sort_model_25.txt
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=0
@@ -247,7 +238,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit30]
+[Unit29]
 FileName=_tensorflow_cpp\_sortbenchmark\sort_model_trained.txt
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=0
@@ -256,7 +247,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit31]
+[Unit30]
 FileName=_tensorflow_cpp\_sortbenchmark\test_sortbenchmark_baseline.cpp
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=1
@@ -266,7 +257,7 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
-[Unit32]
+[Unit31]
 FileName=_tensorflow_cpp\_sortbenchmark\test_sortbenchmark_exe.cpp
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=1
@@ -276,7 +267,7 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
-[Unit33]
+[Unit32]
 FileName=_tensorflow_cpp\_sortbenchmark\test_sortbenchmark_rank.cpp
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=1
@@ -286,7 +277,7 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
-[Unit34]
+[Unit33]
 FileName=_tensorflow_cpp\_sortbenchmark\tictactoe_model.txt
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=0
@@ -294,8 +285,9 @@ Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=1
 
-[Unit35]
+[Unit34]
 FileName=_tensorflow_cpp\_tensorflow\tensorflow.ini
 Folder=_tensorflow_cpp/tensorflow
 Compile=0
@@ -304,8 +296,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit36]
+[Unit35]
 FileName=_tensorflow_cpp\_tensorflow\tensorFlowApp.cpp
+Folder=_tensorflow_cpp/tensorflow
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+CompileCpp=1
+
+[Unit36]
+FileName=_tensorflow_cpp\_tensorflow\test_tensorFlowAppCPP_dll.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/tensorflow
 Compile=1
@@ -388,8 +390,27 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit37]
+FileName=_tensorflow_cpp\_tensorflow\tictactoe_tf_model.zip
+CompileCpp=1
+Folder=_tensorflow_cpp/tensorflow
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit38]
+FileName=_tensorflow_cpp\_sortbenchmark\rank_model_25_rank.txt
+Folder=_tensorflow_cpp/sortbenchmark
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 [Unit25]
-FileName=_tensorflow_cpp\_tictactoe\test_tic_tac_toe_exe.cpp
+FileName=_tensorflow_cpp\_tictactoe\test_tic_tac_toe_tf.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/tictactoe
 Compile=1
@@ -398,30 +419,22 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit37]
-FileName=_tensorflow_cpp\_tensorflow\test_tensorFlowAppCPP_dll.cpp
+[Unit40]
+FileName=_tensorflow_cpp\_tictactoe\_root_test_tic_tac_toe_exe.cpp
 CompileCpp=1
-Folder=_tensorflow_cpp/tensorflow
+Folder=_tensorflow_cpp/tictactoe
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit38]
-FileName=_tensorflow_cpp\_tensorflow\tictactoe_tf_model.zip
-Folder=_tensorflow_cpp/tensorflow
-Compile=0
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit39]
-FileName=_tensorflow_cpp\_sortbenchmark\rank_model_25_rank.txt
-Folder=_tensorflow_cpp/sortbenchmark
-Compile=0
-Link=0
+FileName=_tensorflow_cpp\_tictactoe\test_tic_tac_toe_exe.cpp
+CompileCpp=1
+Folder=_tensorflow_cpp/tictactoe
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

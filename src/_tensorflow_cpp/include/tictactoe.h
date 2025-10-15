@@ -1,4 +1,7 @@
 // tictactoe.h
+#ifndef TICTACTOE_H // include guard
+#define TICTACTOE_H
+#endif
 #pragma once
 
 #include <vector>

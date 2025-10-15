@@ -3,14 +3,11 @@
 
 	g++ -std=c++20 -o test_tic_tac_toe_exe.exe test_tic_tac_toe_exe.cpp
 	
-	execute from root :
-	
-	g++ -std=c++20  -I"include" -o "__test/test_tic_tac_toe_exe.exe"  "_tictactoe/test_tic_tac_toe_exe.cpp"
 
 */
 
 
-#include "../include/tictactoe.h"
+#include "include/tictactoe.h"
 
 #ifdef _WIN32
     #include <conio.h>
@@ -263,8 +260,7 @@ void executeConsole() {
         } else {
             std::cout << "❌ Invalid choice. Please enter 0–5.\n";
             std::cin.clear();
-     
-	        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
 }
