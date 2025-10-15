@@ -1,8 +1,6 @@
 
 /*
 
-	g++ -std=c++20 -o test_tic_tac_toe_exe.exe test_tic_tac_toe_exe.cpp
-	
 	execute from root :
 	
 	g++ -std=c++20  -I"include" -o "__test/test_tic_tac_toe_exe.exe"  "_tictactoe/test_tic_tac_toe_exe.cpp"
