@@ -3,8 +3,6 @@
 Compile with:
 g++ -std=c++17 -I"include" -L"lib" -o test_tic_tac_toe_tf.exe test_tic_tac_toe_tf.cpp -ltensorflow -m64 -Wl,--subsystem,console
 
-g++ -std=c++17  -I"../tensorflow/include" -L"../tensorflow/lib" -o test_tic_tac_toe_tf.exe test_tic_tac_toe_tf.cpp ltensorflow -m64 -Wl,--subsystem,console
-
 
 */
 
