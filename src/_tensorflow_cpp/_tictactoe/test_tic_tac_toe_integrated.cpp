@@ -7,7 +7,7 @@
 */
 
 #include "../include/tictactoe.h"
-#include "../include/tensorflow/c/c_api.h"
+//#include "../include/tensorflow/c/c_api.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -24,7 +24,7 @@
     #define CLEAR_SCREEN() system("clear")
 #endif
 
-
+/*
 // ======================================
 // TensorFlow Integration
 // ======================================
@@ -161,6 +161,8 @@ public:
         if (status) TF_DeleteStatus(status);
     }
 };
+
+*/
 
 // ======================================
 // Game Logic with TensorFlow Integration

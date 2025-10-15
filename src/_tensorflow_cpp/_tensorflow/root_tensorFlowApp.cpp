@@ -11,14 +11,12 @@ https://www.tensorflow.org/install/lang_c?hl=es-419
 
 g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowApp.cpp -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS
 
-// COMPILE FROM ROOT
 
-g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o "__dist/TensorFlowAppCPP.dll" "_tensorflow/tensorFlowApp.cpp" -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS   
-
+   
 */
 
 
-#include "../include/tensorFlowApp.h"
+#include "tensorFlowApp.h"
 
 
 //
@@ -54,73 +52,7 @@ std::string TensorFlowApp::GetTensorFlowAppVersion()
 
 bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
     if (aiMode == TENSORFLOW) {
-        TensorFlowTicTacToe tf;
-        if (!tf.LoadModel("tictactoe_tf_model")) {
-            std::cerr << "❌ Failed to initialize TensorFlow model.\n";
-            return false;
-        }
-
-        TicTacToe game;
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> starter(0, 1);
-        int turn = (starter(gen) == 0) ? 1 : -1;
-
-        std::vector<int> moves;
-
-        for (int i = 0; i < 9; ++i) {
-            result.history[0][i] = game.board[i];
-        }
-        result.historyCount = 1;
-
-        while (true) {
-            int move = -1;
-
-            if (aiMode == TENSORFLOW) {
-                float input[9];
-                for (int i = 0; i < 9; ++i) input[i] = static_cast<float>(game.board[i]);
-                if (!tf.PredictBestMove(input, move)) {
-                    std::cerr << "❌ Prediction failed!\n";
-                    return false;
-                }
-            } else {
-                std::vector<double> input = boardToInput(game.board);
-                NeuralNetworkTicTacToe net(9, 18, 9);
-                net.forward(input);
-                move = selectMove(net.output, game, aiMode, temperature);
-            }
-
-            if (move < 0 || move >= 9 || game.board[move] != 0) {
-                auto valid = game.getValidMoves();
-                if (valid.empty()) break;
-                move = valid[0];
-            }
-
-            game.board[move] = turn;
-            moves.push_back(move);
-
-            if (result.historyCount < 10) {
-                for (int i = 0; i < 9; ++i) {
-                    result.history[result.historyCount][i] = game.board[i];
-                }
-                result.historyCount++;
-            }
-
-            int winner;
-            if (game.isGameOver(winner)) {
-                result.winner = winner;
-                break;
-            }
-            turn = -turn;
-        }
-
-        for (int i = 0; i < 9; ++i) {
-            result.finalBoard[i] = game.board[i];
-            result.moves[i] = (i < static_cast<int>(moves.size())) ? moves[i] : -1;
-        }
-        result.moveCount = static_cast<int>(moves.size());
-        
-        return true;
+        return false;
     }
 
     NeuralNetworkTicTacToe net(9, 18, 9);
@@ -198,7 +130,7 @@ DLL_EXPORT bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result, int 
 {
     try {
         if (!result) return false;
-        //if (aiMode == TENSORFLOW) return false;
+        if (aiMode == TENSORFLOW) return false;
         return RunTicTacToeSelfPlay(*result, aiMode, temperature);
     } catch (...) {
         return false;

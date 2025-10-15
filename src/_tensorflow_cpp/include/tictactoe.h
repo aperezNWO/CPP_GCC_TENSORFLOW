@@ -13,6 +13,8 @@
 #include <string>
 #include <iostream>
 
+#include "tensorflow/c/c_api.h"
+
 // ----------------------------
 // C-Style Export Types
 // ----------------------------
@@ -99,6 +101,146 @@ public:
     bool saveModel(const std::string&) { return true; }
 };
 
+// ======================================
+// TensorFlow Integration
+// ======================================
+
+class TensorFlowTicTacToe {
+public:
+    TF_Graph* graph = nullptr;
+    TF_Session* session = nullptr;
+    TF_Status* status = nullptr;
+
+    bool LoadModel(const char* export_dir) {
+        if (session) return true; // Already loaded
+
+        status = TF_NewStatus();
+        graph = TF_NewGraph();
+
+        TF_SessionOptions* opts = TF_NewSessionOptions();
+        TF_Buffer* meta_graph_def = TF_NewBuffer();
+
+        const char* tags = "serve";
+        int ntags = 1;
+
+        std::cout << "🔍 Loading SavedModel from: " << export_dir << "\n";
+
+        session = TF_LoadSessionFromSavedModel(opts, nullptr,
+                                               export_dir,
+                                               &tags, ntags,
+                                               graph, meta_graph_def, status);
+
+        TF_DeleteSessionOptions(opts);
+        TF_DeleteBuffer(meta_graph_def);
+
+        if (TF_GetCode(status) != TF_OK) {
+            std::cerr << "❌ Failed to load model: " << TF_Message(status) << "\n";
+            return false;
+        }
+
+        std::cout << "✅ Model loaded successfully.\n";
+        return true;
+    }
+
+    bool PredictBestMove(const float input_board[9], int& best_move) {
+        if (!session) {
+            std::cerr << "❌ Session not initialized.\n";
+            return false;
+        }
+
+        // Input tensor: [1, 9]
+        int64_t input_dims[] = {1, 9};
+        TF_Tensor* input_tensor = TF_AllocateTensor(TF_FLOAT, input_dims, 2, sizeof(float) * 9);
+        float* input_data = static_cast<float*>(TF_TensorData(input_tensor));
+        for (int i = 0; i < 9; ++i) {
+            input_data[i] = input_board[i];
+        }
+
+        // Output tensor
+        int64_t output_dims[] = {1, 9};
+        TF_Tensor* output_tensor = nullptr;
+
+        const char* input_name = "serving_default_dense_input";   // Adjust if needed
+        const char* output_name = "StatefulPartitionedCall";      // Adjust if needed
+
+        TF_Output inputs[1] = {{TF_GraphOperationByName(graph, input_name), 0}};
+        TF_Output outputs[1] = {{TF_GraphOperationByName(graph, output_name), 0}};
+
+        if (!inputs[0].oper || !outputs[0].oper) {
+            std::cerr << "❌ Invalid tensor name!\n";
+            std::cerr << "   Input '" << input_name << "': " << (inputs[0].oper ? "FOUND" : "NOT FOUND") << "\n";
+            std::cerr << "   Output '" << output_name << "': " << (outputs[0].oper ? "FOUND" : "NOT FOUND") << "\n";
+            std::cerr << "💡 Use Netron.app to inspect saved_model.pb and get correct names.\n";
+            TF_DeleteTensor(input_tensor);
+            return false;
+        }
+
+        TF_SessionRun(session,
+                      nullptr,
+                      inputs, &input_tensor, 1,
+                      outputs, &output_tensor, 1,
+                      nullptr, 0,
+                      nullptr, status);
+
+        if (TF_GetCode(status) != TF_OK) {
+            std::cerr << "❌ Inference failed: " << TF_Message(status) << "\n";
+            TF_DeleteTensor(input_tensor);
+            return false;
+        }
+
+        float* probs = static_cast<float*>(TF_TensorData(output_tensor));
+
+        // Find valid moves
+        std::vector<int> validMoves;
+        for (int i = 0; i < 9; ++i) {
+            if (input_board[i] == 0.0f) {
+                validMoves.push_back(i);
+            }
+        }
+
+        if (validMoves.empty()) {
+            TF_DeleteTensor(input_tensor);
+            TF_DeleteTensor(output_tensor);
+            return false;
+        }
+
+        // === SOFTMAX SAMPLING WITH TEMPERATURE ===
+        const float temperature = 1.5f; // >1.0 = more random, <1.0 = more greedy
+        std::vector<float> exp_probs;
+        float sum = 0.0f;
+
+        for (int idx : validMoves) {
+            float p = std::exp(probs[idx] / temperature);
+            exp_probs.push_back(p);
+            sum += p;
+        }
+
+        // Normalize
+        for (float& p : exp_probs) p /= sum;
+
+        // Sample move
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::discrete_distribution<> dist(exp_probs.begin(), exp_probs.end());
+
+        best_move = validMoves[dist(gen)];
+
+        TF_DeleteTensor(input_tensor);
+        TF_DeleteTensor(output_tensor);
+        return true;
+    }
+
+    ~TensorFlowTicTacToe() {
+        if (session) TF_CloseSession(session, status);
+        if (session) TF_DeleteSession(session, status);
+        if (graph) TF_DeleteGraph(graph);
+        if (status) TF_DeleteStatus(status);
+    }
+};
+
+//-----------------------------
+// utilities
+//-----------------------------
 
 std::vector<double> boardToInput(const int board[9]) {
     std::vector<double> input(9);
