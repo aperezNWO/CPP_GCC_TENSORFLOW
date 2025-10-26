@@ -8,7 +8,9 @@
 
 	-- [_] Play basic games / algorhtimh / challenges;  against itself.
 	
-        -- [_] Sudoku (logic problems).
+        -- [x] TIC-TAC-TOE (ok).
+            
+	    -- [_] Sudoku (logic problems).
         
         -- [_] Hanoi (viable but not optimal).
 			
@@ -18,33 +20,26 @@
         
         -- [_] Chess.
         
-        -- [_] TIC-TAC-TOE (ok).
-
-	-- [_] TIC-TAC-TOE GAME.
+	-- [x] TIC-TAC-TOE GAME.
 	
-		-- [_] SLC PROJECT 001 - Role=Developer
+		-- [x] SLC PROJECT 001 - Role=Developer
 	
-			-- [_] https://chat.qwen.ai/c/6d3008ce-c294-42dd-8085-6bd3e877a8e7
+			-- [x] https://chat.qwen.ai/c/6d3008ce-c294-42dd-8085-6bd3e877a8e7
 	
 		-- [x] Create standalone demo 
 		
 			-- [x] test_tic_tac_toe_exe.cpp (softmax and relu are implicit).
 			
-			-- [_] Other Options.
+		-- [x] TENSORFLOW.
 			
-				-- [_] .
-		
-				-- [_] .
-
-				-- [_] .
-
-			-- [_] TENSORFLOW.
+				-- [x] DJANGO_DEMO_LOCAL.
 			
-				-- [_] DJANGO_DEMO_LOCAL.
-			
-		-- [_] Integrate isolated demo with Tensorflow C++ DLL.	
+		-- [x] Integrate isolated demo with Tensorflow C++ DLL.	
 				
-			-- [_] Generic Switch with current method.	
+			-- [x] Generic Switch with current method.	
+        
+	
+	-- [_] [Tetris].
 
 /////////////////////////////////////////////
 // QUESTIONS
