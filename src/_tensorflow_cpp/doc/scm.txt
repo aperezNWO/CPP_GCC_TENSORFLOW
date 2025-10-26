@@ -18,21 +18,10 @@
 	  TensorFlowAppCPP.dll
 	  tictactoe_model.txt
  	    
- 	    
-tensorflow for python             2.20.0
+--[_]  tensorflow training model
 
-C:\Users\pablo.perez\dev\cpp\CPP_GCC_TENSORFLOW\src\_tensorflow_cpp\__test>test_tic_tac_toe_tf
-­ƒÄ« Starting Tic-Tac-Toe AI Self-Play...
-2025-10-07 04:55:16.945794: I tensorflow/cc/saved_model/reader.cc:38] Reading SavedModel from: tictactoe_tf_model
-2025-10-07 04:55:16.950462: I tensorflow/cc/saved_model/reader.cc:90] Reading meta graph with tags { serve }
-2025-10-07 04:55:16.950761: I tensorflow/cc/saved_model/reader.cc:132] Reading SavedModel debug info (if present) from: tictactoe_tf_model
-2025-10-07 04:55:16.952096: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2
-To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2025-10-07 04:55:16.971475: I tensorflow/cc/saved_model/loader.cc:211] Restoring SavedModel bundle.
-2025-10-07 04:55:17.006923: E tensorflow/core/framework/node_def_util.cc:629] NodeDef mentions attribute debug_name which is not in the op definition: Op<name=VarHandleOp; signature= -> resource:resource; attr=container:string,default=""; attr=shared_name:string,default=""; attr=dtype:type; attr=shape:shape; attr=allowed_devices:list(string),default=[]; is_stateful=true> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node Variable}}
-2025-10-07 04:55:17.014279: I tensorflow/cc/saved_model/loader.cc:195] Running initialization op on SavedModel bundle at path: tictactoe_tf_model
-2025-10-07 04:55:17.033081: I tensorflow/cc/saved_model/loader.cc:283] SavedModel load for tags { serve }; Status: success: OK. Took 87223 microseconds.
-ÔØî Failed to load model: Converting GraphDef to Graph has failed with an error: 'Op type not registered 'DisableCopyOnRead' in binary running on DESKTOP-TPVVT65. Make sure the Op and Kernel are registered in the binary running in this process. Note that if you are loading a saved graph which used ops from tf.contrib, accessing (e.g.) `tf.contrib.resampler` should be done before importing the graph, as contrib ops are lazily registered when the module is first accessed.' The binary trying to import the GraphDef was built when GraphDef version was 808. The GraphDef was produced by a binary built when GraphDef version was 2288. The difference between these versions is larger than TensorFlow's forward compatibility guarantee, and might be the root cause for failing to import the GraphDef.
-Failed to initialize TensorFlow model.
-ÔØî Game execution failed.
- 	    
+       https://sxcqd6-8000.csb.app/train_tictactoe_model
+       
+       
+       
+       
