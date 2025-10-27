@@ -83,12 +83,7 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
                     std::cerr << "❌ Prediction failed!\n";
                     return false;
                 }
-            } else {
-                std::vector<double> input = boardToInput(game.board);
-                NeuralNetworkTicTacToe net(9, 18, 9);
-                net.forward(input);
-                move = selectMove(net.output, game, aiMode, temperature);
-            }
+            } 
 
             if (move < 0 || move >= 9 || game.board[move] != 0) {
                 auto valid = game.getValidMoves();
