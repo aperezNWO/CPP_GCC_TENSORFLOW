@@ -47,9 +47,16 @@
 			-- [x] Generic Switch with current method.	
         
 	
+	-- [_] [TETRIS].
+	
+			-- [_] Load Existing model / from Django.
+			
+			-- [_] Load Existing model / from .NET Core / C++.
+	
 	-- [_] [OCR].
 	
-			-- [_] Load Existing model.
+			-- [_] Load Existing model / from Django.
 	
-
+			-- [_] Load Existing model / from .NET Core / C++.
+	
 /////////////////////////////////////////////////////////////////////////////////////
