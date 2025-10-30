@@ -122,10 +122,12 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
     const std::string modelFile = "tictactoe_model.txt";
 
     if (aiMode != MINIMAX && !net.loadModel(modelFile)) {
-        //std::cout << "[Training] No model found. Training 5000 games...\n";
-        for (int i = 0; i < 5000; ++i) trainStep(net);
-        net.saveModel(modelFile);
-        //std::cout << "[Saved] Model saved to '" << modelFile << "'\n";
+     	//
+        for (int i = 0; i < 5000; ++i) 
+				trainStep(net);
+        //
+		net.saveModel(modelFile);
+        //
     }
 
     TicTacToe game;
@@ -192,8 +194,9 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
 DLL_EXPORT bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result, int aiMode, double temperature) 
 {
     try {
+    	//
         if (!result) return false;
-        //if (aiMode == TENSORFLOW) return false;
+        //
         return RunTicTacToeSelfPlay(*result, aiMode, temperature);
     } catch (...) {
         return false;
