@@ -126,7 +126,6 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
 				trainStep(net);
         //
 		net.saveModel(modelFile);
-        //
     }
 
     TicTacToe game;
