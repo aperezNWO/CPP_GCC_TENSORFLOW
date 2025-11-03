@@ -76,14 +76,13 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
         while (true) {
             int move = -1;
 
-            if (aiMode == TENSORFLOW) {
-                float input[9];
-                for (int i = 0; i < 9; ++i) input[i] = static_cast<float>(game.board[i]);
-                if (!tf.PredictBestMove(input, move)) {
-                    std::cerr << "❌ Prediction failed!\n";
-                    return false;
-                }
-            } 
+            float input[9];
+            for (int i = 0; i < 9; ++i) input[i] = static_cast<float>(game.board[i]);
+            if (!tf.PredictBestMove(input, move)) {
+                std::cerr << "❌ Prediction failed!\n";
+                return false;
+            }
+
 
             if (move < 0 || move >= 9 || game.board[move] != 0) {
                 auto valid = game.getValidMoves();

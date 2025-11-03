@@ -33,9 +33,9 @@ struct TicTacToeGameResult {
 
 class TensorFlowTicTacToe {
 public:
-    TF_Graph* graph = nullptr;
+    TF_Graph*   graph   = nullptr;
     TF_Session* session = nullptr;
-    TF_Status* status = nullptr;
+    TF_Status*  status  = nullptr;
 
     bool LoadModel(const char* export_dir) {
         if (session) return true; // Already loaded
