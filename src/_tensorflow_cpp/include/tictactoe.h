@@ -238,6 +238,7 @@ public:
     }
 };
 
+
 //-----------------------------
 // utilities
 //-----------------------------
@@ -429,6 +430,10 @@ int selectMove(const std::vector<double>& output, const TicTacToe& game, int aiM
 }
 
 void trainStep(NeuralNetworkTicTacToe& net) { /* Simulate */ }
+
+// ----------------------------
+// Main Program Entrance
+// ----------------------------
 
 bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
     if (aiMode == TENSORFLOW) {
