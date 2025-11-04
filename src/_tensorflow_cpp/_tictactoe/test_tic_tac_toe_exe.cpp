@@ -24,7 +24,7 @@
 // Console Animation & UI
 // ----------------------------
 
-bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
+bool ___RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
     if (aiMode == TENSORFLOW) {
         return false;
     }
@@ -100,7 +100,7 @@ bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result, int aiMode, dou
         try {
             if (!result) return false;
             if (aiMode == TENSORFLOW) return false;
-            return RunTicTacToeSelfPlay(*result, aiMode, temperature);
+            return ___RunTicTacToeSelfPlay(*result, aiMode, temperature);
         } catch (...) {
             return false;
         }

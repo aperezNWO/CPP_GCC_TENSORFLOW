@@ -23,7 +23,7 @@
 // Console Animation & UI
 // ----------------------------
 
-bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
+bool ___RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
     if (aiMode == TENSORFLOW) {
         return false;
     }

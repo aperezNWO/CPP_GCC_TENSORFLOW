@@ -168,7 +168,7 @@ public:
 // Game Logic with TensorFlow Integration
 // ======================================
 
-bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
+bool __RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
     if (aiMode == TENSORFLOW) {
         TensorFlowTicTacToe tf;
         if (!tf.LoadModel("tictactoe_tf_model")) {
@@ -406,7 +406,7 @@ void runMultipleGames(int aiMode) {
         std::cout << "🎮 Playing game " << (gameCount + 1) << " as '" << modeNames[aiMode] << "'...\n\n";
 
         TicTacToeResultOnline result{};
-        if (RunTicTacToeSelfPlay(result, aiMode, temperature)) {
+        if (__RunTicTacToeSelfPlay(result, aiMode, temperature)) {
             animateGame(result, aiMode);
 
             if (result.winner == 1) ++winsX;

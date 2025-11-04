@@ -13,8 +13,6 @@ g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFl
 
 // COMPILE FROM ROOT
 
-g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o "__dist/TensorFlowAppCPP.dll" "_tensorflow/tensorFlowApp.cpp" -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS   
-
 */
 
 
