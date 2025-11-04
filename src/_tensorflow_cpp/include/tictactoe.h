@@ -97,9 +97,19 @@ public:
     std::vector<double> output;
     NeuralNetworkTicTacToe(int, int, int) : output(9, 0.0) {}
     void forward(const std::vector<double>& x) { output = x; }
-    bool loadModel(const std::string&) { return true; }
-    bool saveModel(const std::string&) { return true; }
+    // TODO : IMPLEMENT MODEL
+    //bool loadModel(const std::string&) { return true; }
+    //bool saveModel(const std::string&) { return true; }
 };
+
+
+/*
+void trainStep(NeuralNetworkTicTacToe& net) { 
+	// simulate 
+	
+}
+*/
+
 
 // ======================================
 // TensorFlow Integration
@@ -429,8 +439,6 @@ int selectMove(const std::vector<double>& output, const TicTacToe& game, int aiM
     }
 }
 
-void trainStep(NeuralNetworkTicTacToe& net) { /* Simulate */ }
-
 // ----------------------------
 // Main Program Entrance
 // ----------------------------
@@ -500,7 +508,10 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
         return true;
     }
 
-    NeuralNetworkTicTacToe net(9, 18, 9);
+	NeuralNetworkTicTacToe net(9, 18, 9);
+	    
+	/* TODO LIST : IMPLEMENT NEURAL NETWORK MODEL
+
     const std::string modelFile = "tictactoe_model.txt";
 
     if (aiMode != MINIMAX && !net.loadModel(modelFile)) {
@@ -509,7 +520,7 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
 				trainStep(net);
         //
 		net.saveModel(modelFile);
-    }
+    }*/
 
     TicTacToe game;
     std::random_device rd;
