@@ -50,19 +50,80 @@ std::string TensorFlowApp::GetTensorFlowAppVersion()
 }
 
 
-bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
+bool _RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
     if (aiMode == TENSORFLOW) {
-        return false;
+        TensorFlowTicTacToe tf;
+        if (!tf.LoadModel("tictactoe_tf_model")) {
+            std::cerr << "❌ Failed to initialize TensorFlow model.\n";
+            return false;
+        }
+
+        TicTacToe game;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> starter(0, 1);
+        int turn = (starter(gen) == 0) ? 1 : -1;
+
+        std::vector<int> moves;
+
+        for (int i = 0; i < 9; ++i) {
+            result.history[0][i] = game.board[i];
+        }
+        result.historyCount = 1;
+
+        while (true) {
+            int move = -1;
+
+            float input[9];
+            for (int i = 0; i < 9; ++i) input[i] = static_cast<float>(game.board[i]);
+            if (!tf.PredictBestMove(input, move)) {
+                std::cerr << "❌ Prediction failed!\n";
+                return false;
+            }
+
+
+            if (move < 0 || move >= 9 || game.board[move] != 0) {
+                auto valid = game.getValidMoves();
+                if (valid.empty()) break;
+                move = valid[0];
+            }
+
+            game.board[move] = turn;
+            moves.push_back(move);
+
+            if (result.historyCount < 10) {
+                for (int i = 0; i < 9; ++i) {
+                    result.history[result.historyCount][i] = game.board[i];
+                }
+                result.historyCount++;
+            }
+
+            int winner;
+            if (game.isGameOver(winner)) {
+                result.winner = winner;
+                break;
+            }
+            turn = -turn;
+        }
+
+        for (int i = 0; i < 9; ++i) {
+            result.finalBoard[i] = game.board[i];
+            result.moves[i] = (i < static_cast<int>(moves.size())) ? moves[i] : -1;
+        }
+        result.moveCount = static_cast<int>(moves.size());
+        
+        return true;
     }
 
     NeuralNetworkTicTacToe net(9, 18, 9);
     const std::string modelFile = "tictactoe_model.txt";
 
     if (aiMode != MINIMAX && !net.loadModel(modelFile)) {
-        //std::cout << "[Training] No model found. Training 5000 games...\n";
-        for (int i = 0; i < 5000; ++i) trainStep(net);
-        net.saveModel(modelFile);
-        //std::cout << "[Saved] Model saved to '" << modelFile << "'\n";
+     	//
+        for (int i = 0; i < 5000; ++i) 
+				trainStep(net);
+        //
+		net.saveModel(modelFile);
     }
 
     TicTacToe game;
@@ -129,9 +190,10 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
 DLL_EXPORT bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result, int aiMode, double temperature) 
 {
     try {
-        if (!result) return false;
-        if (aiMode == TENSORFLOW) return false;
-        return RunTicTacToeSelfPlay(*result, aiMode, temperature);
+        //
+		if (!result) return false;
+		//
+        return _RunTicTacToeSelfPlay(*result, aiMode, temperature);
     } catch (...) {
         return false;
     }
