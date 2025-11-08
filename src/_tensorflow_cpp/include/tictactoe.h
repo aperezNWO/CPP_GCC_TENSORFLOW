@@ -771,8 +771,6 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
     {
     	//
 	    NeuralNetwork          netStandalone(9, 18, 9);;		
-		    
-		// TODO LIST : IMPLEMENT NEURAL NETWORK MODEL
 	
 	    const std::string modelFile = "tictactoe_model.txt";
 	
@@ -781,7 +779,6 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
 	        for (int i = 0; i < 5000; ++i) 
 					trainStep(netStandalone);
 	        //
-
 			netStandalone.saveModel(modelFile);
 	    }
 	
