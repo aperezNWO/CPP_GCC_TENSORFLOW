@@ -187,58 +187,6 @@ public:
 // ----------------------------
 
 struct TicTacToe {
-    int board[9] = {0}; // 0=empty, 1=X, -1=O
-
-    void reset() {
-        for (int i = 0; i < 9; ++i) board[i] = 0;
-    }
-
-    void print() const {
-        for (int i = 0; i < 9; ++i) {
-            std::cout << " ";
-            if (board[i] == 1)      std::cout << "X";
-            else if (board[i] == -1) std::cout << "O";
-            else                    std::cout << " ";
-
-            if (i % 3 != 2) std::cout << " |";
-            if (i % 3 == 2 && i < 8) std::cout << "\n-----------\n";
-        }
-        std::cout << "\n\n";
-    }
-
-    bool isGameOver(int& winner) const {
-        const int wins[8][3] = {
-            {0,1,2}, {3,4,5}, {6,7,8},
-            {0,3,6}, {1,4,7}, {2,5,8},
-            {0,4,8}, {2,4,6}
-        };
-
-        for (const auto& w : wins) {
-            if (board[w[0]] != 0 &&
-                board[w[0]] == board[w[1]] &&
-                board[w[1]] == board[w[2]]) {
-                winner = board[w[0]];
-                return true;
-            }
-        }
-
-        for (int i = 0; i < 9; ++i) {
-            if (board[i] == 0) return false;
-        }
-        winner = 0;
-        return true;
-    }
-
-    std::vector<int> getValidMoves() const {
-        std::vector<int> moves;
-        for (int i = 0; i < 9; ++i) {
-            if (board[i] == 0) moves.push_back(i);
-        }
-        return moves;
-    }
-};
-
-class TicTacToeStandalone {
 public:
     std::vector<int> board{0, 0, 0, 0, 0, 0, 0, 0, 0}; // 0=empty, 1=X, -1=O
 
@@ -484,7 +432,7 @@ std::vector<double> boardToInput(const std::vector<int>& board) {
 }
 
 // Mask invalid outputs (already taken spots)
-void maskOutputs(std::vector<double>& output, const TicTacToeStandalone& game) {
+void maskOutputs(std::vector<double>& output, const TicTacToe& game) {
     for (int i = 0; i < 9; ++i) {
         if (game.board[i] != 0) {
             output[i] = -1e9; // effectively zero after softmax-like selection
@@ -493,14 +441,14 @@ void maskOutputs(std::vector<double>& output, const TicTacToeStandalone& game) {
 }
 
 // Choose action: pick highest scoring valid move
-int selectMove(const std::vector<double>& output, const TicTacToeStandalone& game) {
+int selectMove(const std::vector<double>& output, const TicTacToe& game) {
     std::vector<double> masked = output;
     maskOutputs(masked, game);
 
     return std::distance(masked.begin(), std::max_element(masked.begin(), masked.end()));
 }
 
-int selectMoveWithSoftmax(const std::vector<double>& output, const TicTacToeStandalone& game) {
+int selectMoveWithSoftmax(const std::vector<double>& output, const TicTacToe& game) {
     std::vector<double> logits = output;
     maskOutputs(logits, game); // Set invalid moves to very low value
 
@@ -524,7 +472,7 @@ int selectMoveWithSoftmax(const std::vector<double>& output, const TicTacToeStan
 }
 
 void trainStep(NeuralNetwork& net) { 
-    TicTacToeStandalone game;
+    TicTacToe game;
     std::vector<std::pair<std::vector<double>, std::vector<double>>> history; // (state, move_prob)
 
     int turn = 1; // 1 = X (network), -1 = O (network too)
@@ -627,7 +575,7 @@ int selectSampled(const std::vector<double>& probs, const TicTacToe& game) {
     return valid[dist(gen)];
 }
 
-int selectRandomMove(const TicTacToe& game) {
+int selectRandomMove(/*const*/ TicTacToe& game) {
     auto valid = game.getValidMoves();
     if (valid.empty()) return -1;
     std::random_device rd;
@@ -695,7 +643,9 @@ int minimax(const int board[9], int depth, bool isMaximizing, int alpha = -1000,
     }
 }
 
-int minimaxMove(const int board[9], int player) {
+//int minimaxMove(const int board[9], int player) {
+int minimaxMove(std::vector<int> board, int player) {
+
     int bestMove = -1;
     int bestValue = (player == 1) ? -1000 : 1000;
 
@@ -730,7 +680,7 @@ int minimaxMove(const int board[9], int player) {
 // Main Move Selector
 // ----------------------------
 
-int selectMove(const std::vector<double>& output, const TicTacToe& game, int aiMode, double temperature) {
+int selectMove(const std::vector<double>& output, /*const*/ TicTacToe& game, int aiMode, double temperature) {
     if (aiMode == RANDOM) {
         return selectRandomMove(game);
     }

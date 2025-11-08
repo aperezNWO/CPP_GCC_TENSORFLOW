@@ -97,9 +97,9 @@ CursorRow=1
 TopLine=1
 LeftChar=1
 [Editor_21]
-CursorCol=19
-CursorRow=16
-TopLine=1
+CursorCol=22
+CursorRow=647
+TopLine=634
 LeftChar=1
 [Editor_10]
 CursorCol=25
@@ -122,9 +122,9 @@ CursorRow=7
 TopLine=2
 LeftChar=1
 [Editor_35]
-CursorCol=6
-CursorRow=26
-TopLine=25
+CursorCol=1
+CursorRow=11
+TopLine=305
 LeftChar=1
 [Editor_36]
 CursorCol=1
@@ -173,8 +173,8 @@ TopLine=1
 LeftChar=1
 [Editor_43]
 CursorCol=1
-CursorRow=268
-TopLine=256
+CursorRow=1
+TopLine=13
 LeftChar=1
 [Editor_44]
 CursorCol=1
