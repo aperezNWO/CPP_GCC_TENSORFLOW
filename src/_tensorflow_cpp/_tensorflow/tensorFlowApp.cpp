@@ -11,7 +11,7 @@ https://www.tensorflow.org/install/lang_c?hl=es-419
 
 g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o TensorFlowAppCPP.dll tensorFlowApp.cpp -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS
 
-// COMPILE FROM ROOT
+// COMPILE FROM ROOT (above _tensorflow folder)
 
 g++ -std=c++20 -I"include" -L"lib" -shared -m64 -o "__dist/TensorFlowAppCPP.dll" "_tensorflow/tensorFlowApp.cpp" -ltensorflow -lAlgorithm -Wl,--subsystem,windows -DALGORITHM_EXPORTS   
 

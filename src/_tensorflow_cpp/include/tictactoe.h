@@ -247,20 +247,9 @@ std::mt19937 gen(rd());
 std::uniform_real_distribution<> dis(0.0, 1.0);
 std::uniform_int_distribution<> moveDis(0, 8);
 
-// Sigmoid function
-double sigmoid(double x) {
-    return 1.0 / (1.0 + exp(-std::max(-700.0, std::min(700.0, x))));
-}
-
-// Derivative of sigmoid
-double sigmoidDerivative(double x) {
-    double s = sigmoid(x);
-    return s * (1 - s);
-}
-
-
 class NeuralNetwork {
 public:
+ 
     std::vector<double> input, hidden, output;
     std::vector<std::vector<double>> weights_ih, weights_ho;
     std::vector<double> bias_h, bias_o;
@@ -287,6 +276,17 @@ public:
         for (double& b : bias_o)
             b = dis(gen) * 2.0 - 1.0;
     }
+
+	// Sigmoid function
+	double sigmoid(double x) {
+	    return 1.0 / (1.0 + exp(-std::max(-700.0, std::min(700.0, x))));
+	}
+	
+	// Derivative of sigmoid
+	double sigmoidDerivative(double x) {
+	    double s = sigmoid(x);
+	    return s * (1 - s);
+	}
 
     void forward(const std::vector<double>& x) {
         input = x;
@@ -422,6 +422,11 @@ public:
 	}
 };
 
+//-----------------------------
+// utilities
+//-----------------------------
+
+
 // Convert board to network input (-1, 0, 1) -> (double)
 std::vector<double> boardToInput(const std::vector<int>& board) {
     std::vector<double> input;
@@ -517,12 +522,6 @@ void trainStep(NeuralNetwork& net) {
 	
 }
 
-
-
-
-//-----------------------------
-// utilities
-//-----------------------------
 
 std::vector<double> boardToInput(const int board[9]) {
     std::vector<double> input(9);
@@ -643,7 +642,7 @@ int minimax(const int board[9], int depth, bool isMaximizing, int alpha = -1000,
     }
 }
 
-//int minimaxMove(const int board[9], int player) {
+
 int minimaxMove(std::vector<int> board, int player) {
 
     int bestMove = -1;
