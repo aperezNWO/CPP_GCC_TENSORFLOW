@@ -1,6 +1,16 @@
-#ifndef CHESSAIAPPCPP_H // include guard
-#define CHESSAIAPPCPP_H
-#endif
+
+/*
+
+	=====================================================================================
+	== [ok] tic tac toe game - standalone
+	=====================================================================================
+	
+	execute from root  (above _tictactoe folder) :
+	
+	g++ -std=c++20  -I"include" -o "__test/test_tic_tac_toe_standalone.exe"  "_tictactoe/test_tic_tac_toe_standalone.cpp"
+
+*/
+
 
 #include <iostream>
 #include <string>
@@ -13,39 +23,14 @@
 #include <fstream>   // For file reading/writing
 #include <iomanip>   // For std::setprecision
 
-
-
-
-
-// C-style export types
-extern "C" {
-    typedef struct {
-        int board[9];
-        int moves[9]; // -1 if not used
-        int winner;   // 1=X, -1=O, 0=draw
-        int moveCount;
-    } TicTacToeResult;
-
-    bool PlayTicTacToeGame(int* boardOut, int* movesOut, int* winnerOut, int* moveCountOut);
-}
-
-
-// C-style export types
-extern "C" {
-    typedef struct {
-        int finalBoard[9];
-        int moves[9];
-        int winner;
-        int moveCount;
-
-        // NEW: Include history
-        int history[10][9];   // Up to 10 states (initial + 9 moves)
-        int historyCount;     // Actual number of states
-    } TicTacToeResultOnline;
-
-    // Now expose a function that fills all fields
-    bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result);
-}
+#ifdef _WIN32
+    #include <conio.h>
+    #include <windows.h>
+    #define CLEAR_SCREEN() system("cls")
+#else
+    #include <unistd.h>
+    #define CLEAR_SCREEN() system("clear")
+#endif
 
 
 // Random number generator
@@ -53,6 +38,7 @@ std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<> dis(0.0, 1.0);
 std::uniform_int_distribution<> moveDis(0, 8);
+
 
 // Sigmoid function
 double sigmoid(double x) {
@@ -65,22 +51,14 @@ double sigmoidDerivative(double x) {
     return s * (1 - s);
 }
 
-
-// Function to pause until user presses Enter
-void waitForEnter() {
-    std::cout << "Press Enter to continue...";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    //std::cin.get(); // Wait for Enter (handles newline from previous input)
-}
-
-class NeuralNetworkTicTacToe {
+class NeuralNetwork {
 public:
     std::vector<double> input, hidden, output;
     std::vector<std::vector<double>> weights_ih, weights_ho;
     std::vector<double> bias_h, bias_o;
     double learningRate = 0.1;
 
-    NeuralNetworkTicTacToe(int inputSize, int hiddenSize, int outputSize)
+    NeuralNetwork(int inputSize, int hiddenSize, int outputSize)
         : input(inputSize), hidden(hiddenSize), output(outputSize),
           weights_ih(hiddenSize, std::vector<double>(inputSize)),
           weights_ho(outputSize, std::vector<double>(hiddenSize)),
@@ -338,7 +316,7 @@ int selectMoveWithSoftmax(const std::vector<double>& output, const TicTacToe& ga
 }
 
 // Simulate one self-play game and train the network
-void trainStep(NeuralNetworkTicTacToe& net) {
+void trainStep(NeuralNetwork& net) {
     TicTacToe game;
     std::vector<std::pair<std::vector<double>, std::vector<double>>> history; // (state, move_prob)
 
@@ -383,6 +361,121 @@ void trainStep(NeuralNetworkTicTacToe& net) {
     }
 }
 
+// Function to pause until user presses Enter
+void waitForEnter() {
+    std::cout << "Press Enter to continue...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    //std::cin.get(); // Wait for Enter (handles newline from previous input)
+}
+
+// Function to ask if user wants to continue
+bool askToContinue() {
+    std::string response;
+    while (true) {
+        std::cout << "\nDo you want to watch another game? (y/n): ";
+        std::getline(std::cin, response);
+
+        // Convert to lowercase for case-insensitive comparison
+        std::string lowerResponse;
+        std::transform(response.begin(), response.end(), std::back_inserter(lowerResponse),
+                      [](unsigned char c){ return std::tolower(c); });
+
+        if (lowerResponse == "y" || lowerResponse == "yes") {
+            return true;
+        } else if (lowerResponse == "n" || lowerResponse == "no") {
+            return false;
+        } else {
+            std::cout << "Please enter 'y' or 'n'.\n";
+        }
+    }
+}
+
+// Play one self-play test game
+void playTestGame(NeuralNetwork& net) {
+    TicTacToe testGame;
+    int turn = 1; // X starts
+
+    std::cout << "\n=== TEST GAME: Network vs Itself ===\n";
+
+    while (true) {
+
+		CLEAR_SCREEN(); // Clear screen at the start of each move
+		         
+        std::cout << "\n=== TEST GAME: Network vs Itself ===\n";
+        testGame.print();
+
+        std::vector<double> input = boardToInput(testGame.board);
+        net.forward(input);
+        //int move = selectMove(net.output, testGame);
+        int move   = selectMoveWithSoftmax(net.output, testGame);
+
+        std::cout << "Player " << (turn == 1 ? "X" : "O") << " plays at position " << move << "\n";
+
+        testGame.board[move] = turn;
+
+        int winner;
+        if (testGame.isGameOver(winner)) {
+            CLEAR_SCREEN();
+            std::cout << "\n=== TEST GAME: Network vs Itself ===\n";
+            testGame.print();
+            if (winner == 1)      std::cout << " X wins!\n";
+            else if (winner == -1) std::cout << " O wins!\n";
+            else                  std::cout << " Draw!\n";
+
+            break;
+        }
+
+        turn = -turn; // Switch player
+
+        // Optional: small delay to make it watchable
+        #ifdef _WIN32
+            Sleep(500); // 500 ms
+        #else
+            usleep(500000); // 500 ms
+        #endif
+        
+
+    }
+}
 
 
+// Main loop: play multiple games until user says no
+int main() {
+    const std::string modelFile = "tictactoe_model.txt";
+    NeuralNetwork net(9, 18, 9); // Create network (random at first)
+
+    std::cout << "Looking for saved model: " << modelFile << "\n";
+
+    if (net.loadModel(modelFile)) {
+        std::cout << " Successfully loaded pretrained model.\n";
+    } else {
+        std::cout << " Model not found or corrupted. Starting training...\n";
+
+        // Train for 5000 self-play games
+        for (int i = 0; i < 5000; ++i) {
+            trainStep(net);
+            if (i % 500 == 0)
+                std::cout << "Epoch " << i << " complete.\n";
+        }
+
+        // Save for next time
+        if (net.saveModel(modelFile)) {
+            std::cout << " Final model saved to '"<< modelFile << "'\n";
+        } else {
+            std::cerr << " Failed to save model after training!\n";
+        }
+    }
+
+	//
+	waitForEnter();
+	        
+    // Now run interactive test games
+    do {
+        playTestGame(net);
+        waitForEnter();
+    } while (askToContinue());
+
+    std::cout << "Thanks for watching! Goodbye!\n";
+    return 0;
+}
 

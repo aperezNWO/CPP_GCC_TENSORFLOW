@@ -1,7 +1,11 @@
 /*
 
-1) TOOLCHAIN : C:\msys64\ucrt64\bin (CHANGE PATH)
-2) g++ -std=c++20 -o chessAIAppCPP.exe chessAIAppCPP.cpp 
+	=====================================================================================
+	== tic tac toe game - standalone
+	=====================================================================================
+
+	1) TOOLCHAIN : C:\msys64\ucrt64\bin (CHANGE PATH)
+	2) g++ -std=c++20 -o test_tic_tac_toe_standalone.exe _backup_test_tic_tac_toe_standalone.cpp 
 
 */
 

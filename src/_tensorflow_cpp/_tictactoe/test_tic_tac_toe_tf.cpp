@@ -1,8 +1,12 @@
 /*
 
-Compile from root
-
-g++ -std=c++17 -I"include" -L"lib" -o "__test/test_tic_tac_toe_tf.exe" "_tictactoe/test_tic_tac_toe_tf.cpp" -ltensorflow -m64 -Wl,--subsystem,console
+	=====================================================================================
+	== [ok] - tic tac toe game - [stand alone file] for [Tensorflow]
+	=====================================================================================
+	
+	Compile from root (avobe _tictactoe folder)
+	
+	g++ -std=c++17 -I"include" -L"lib" -o "__test/test_tic_tac_toe_tf.exe" "_tictactoe/test_tic_tac_toe_tf.cpp" -ltensorflow -m64 -Wl,--subsystem,console
 
 */
 

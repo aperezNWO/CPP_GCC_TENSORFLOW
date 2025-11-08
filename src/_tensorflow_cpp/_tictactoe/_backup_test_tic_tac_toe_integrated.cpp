@@ -1,7 +1,13 @@
 
 /*
 
-	g++ -std=c++20 -o test_tic_tac_toe_exe.exe test_tic_tac_toe_exe.cpp
+	
+	=====================================================================================
+	= [ok] tic tac toe game - split [stand alone file] and [header file]
+	=====================================================================================
+
+
+	g++ -std=c++20 -o test_tic_tac_toe_integrated.exe _backup_test_tic_tac_toe_integrated.cpp
 	
 
 */
