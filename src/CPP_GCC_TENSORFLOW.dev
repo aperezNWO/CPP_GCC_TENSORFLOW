@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
-UnitCount=44
+UnitCount=43
 
 [VersionInfo]
 Major=1
@@ -110,28 +110,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit10]
-FileName=_tensorflow_cpp\include\ticTacToeTF.h
-CompileCpp=1
-Folder=_tensorflow_cpp/include
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit13]
-FileName=_tensorflow_cpp\include\SortBenchMark.h
+FileName=_tensorflow_cpp\__dist\Algorithm.ini
 CompileCpp=1
-Folder=_tensorflow_cpp/include
-Compile=1
-Link=1
+Folder=_tensorflow_cpp/__dist
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
 [Unit14]
-FileName=_tensorflow_cpp\__dist\Algorithm.ini
+FileName=_tensorflow_cpp\__dist\tensorflow.ini
 Folder=_tensorflow_cpp/__dist
 Compile=0
 Link=0
@@ -141,7 +131,7 @@ BuildCmd=
 CompileCpp=1
 
 [Unit18]
-FileName=_tensorflow_cpp\__test\Algorithm.ini
+FileName=_tensorflow_cpp\__test\tensorflow.ini
 Folder=_tensorflow_cpp/__test
 Compile=0
 Link=0
@@ -161,7 +151,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit15]
-FileName=_tensorflow_cpp\__dist\tensorflow.ini
+FileName=_tensorflow_cpp\__dist\tictactoe_model.txt
 CompileCpp=1
 Folder=_tensorflow_cpp/__dist
 Compile=0
@@ -171,17 +161,17 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit22]
-FileName=_tensorflow_cpp\include\tictactoe.h
-Folder=_tensorflow_cpp/include
-Compile=1
-Link=1
+FileName=_tensorflow_cpp\_sortbenchmark\sort_model_9.txt
+Folder=_tensorflow_cpp/sortbenchmark
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
 [Unit26]
-FileName=_tensorflow_cpp\_sortbenchmark\test_sortbenchmark_baseline.cpp
+FileName=_tensorflow_cpp\_sortbenchmark\test_sortbenchmark_exe.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=1
@@ -191,16 +181,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit27]
-FileName=_tensorflow_cpp\_sortbenchmark\test_sortbenchmark_exe.cpp
-Folder=_tensorflow_cpp/sortbenchmark
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-CompileCpp=1
-
-[Unit28]
 FileName=_tensorflow_cpp\_sortbenchmark\test_sortbenchmark_rank.cpp
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=1
@@ -210,7 +190,7 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
-[Unit29]
+[Unit28]
 FileName=_tensorflow_cpp\_sortbenchmark\tictactoe_model.txt
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=0
@@ -220,7 +200,7 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
-[Unit30]
+[Unit29]
 FileName=_tensorflow_cpp\_tensorflow\tensorflow.ini
 Folder=_tensorflow_cpp/tensorflow
 Compile=0
@@ -230,9 +210,9 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
-[Unit32]
-FileName=_tensorflow_cpp\_sortbenchmark\rank_model_25_rank.txt
-Folder=_tensorflow_cpp/sortbenchmark
+[Unit30]
+FileName=_tensorflow_cpp\_tensorflow\tictactoe_tf_model.zip
+Folder=_tensorflow_cpp/tensorflow
 Compile=0
 Link=0
 Priority=1000
@@ -240,7 +220,7 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
-[Unit33]
+[Unit32]
 FileName=_tensorflow_cpp\_tictactoe\test_tic_tac_toe_tf.cpp
 Folder=_tensorflow_cpp/tictactoe
 Compile=1
@@ -250,7 +230,7 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
-[Unit34]
+[Unit33]
 FileName=_tensorflow_cpp\_tictactoe\test_tic_tac_toe_integrated.cpp
 Folder=_tensorflow_cpp/tictactoe
 Compile=1
@@ -260,9 +240,19 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=1
 
-[Unit35]
+[Unit34]
 FileName=_tensorflow_cpp\_tensorflow\tensorFlowApp.cpp
 Folder=_tensorflow_cpp/tensorflow
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+CompileCpp=1
+
+[Unit35]
+FileName=_tensorflow_cpp\_tetris\tetris.cpp
+Folder=_tensorflow_cpp/tetris
 Compile=1
 Link=1
 Priority=1000
@@ -281,25 +271,16 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit12]
-FileName=_tensorflow_cpp\doc\strategy.md
+FileName=_tensorflow_cpp\include\SortBenchMark.h
 CompileCpp=1
-Folder=_tensorflow_cpp/doc
-Compile=0
-Link=0
+Folder=_tensorflow_cpp/include
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
 [Unit16]
-FileName=_tensorflow_cpp\__dist\tictactoe_model.txt
-Folder=_tensorflow_cpp/__dist
-Compile=0
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit17]
 FileName=_tensorflow_cpp\__dist\tictactoe_tf_model.zip
 Folder=_tensorflow_cpp/__dist
 Compile=0
@@ -308,8 +289,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit19]
-FileName=_tensorflow_cpp\__test\tensorflow.ini
+[Unit17]
+FileName=_tensorflow_cpp\__test\Algorithm.ini
 Folder=_tensorflow_cpp/__test
 Compile=0
 Link=0
@@ -317,7 +298,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit20]
+[Unit19]
 FileName=_tensorflow_cpp\__test\tictactoe_model.txt
 Folder=_tensorflow_cpp/__test
 Compile=0
@@ -326,7 +307,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit21]
+[Unit20]
 FileName=_tensorflow_cpp\__test\tictactoe_tf_model.zip
 Folder=_tensorflow_cpp/__test
 Compile=0
@@ -335,8 +316,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit21]
+FileName=_tensorflow_cpp\include\tictactoe.h
+Folder=_tensorflow_cpp/include
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+CompileCpp=1
+
 [Unit23]
-FileName=_tensorflow_cpp\_sortbenchmark\sort_model_9.txt
+FileName=_tensorflow_cpp\_sortbenchmark\sort_model_25.txt
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=0
 Link=0
@@ -346,7 +337,7 @@ BuildCmd=
 CompileCpp=1
 
 [Unit37]
-FileName=_tensorflow_cpp\doc\tensorflow.md
+FileName=_tensorflow_cpp\doc\Questions.md
 CompileCpp=1
 Folder=_tensorflow_cpp/doc
 Compile=1
@@ -356,36 +347,16 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit25]
-FileName=_tensorflow_cpp\_sortbenchmark\sort_model_trained.txt
+FileName=_tensorflow_cpp\_sortbenchmark\test_sortbenchmark_baseline.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/sortbenchmark
-Compile=0
-Link=0
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
 [Unit40]
-FileName=_tensorflow_cpp\_tictactoe\_backup_test_tic_tac_toe_tf.cpp
-CompileCpp=1
-Folder=_tensorflow_cpp/tictactoe
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit39]
-FileName=_tensorflow_cpp\_tictactoe\_backup_test_tic_tac_toe_integrated.cpp
-CompileCpp=1
-Folder=_tensorflow_cpp/tictactoe
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit41]
 FileName=_tensorflow_cpp\_tictactoe\_backup_test_tic_tac_toe_standalone.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/tictactoe
@@ -395,7 +366,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit42]
+[Unit39]
+FileName=_tensorflow_cpp\_tictactoe\_backup_test_tic_tac_toe_tf.cpp
+CompileCpp=1
+Folder=_tensorflow_cpp/tictactoe
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit41]
 FileName=_tensorflow_cpp\_tictactoe\test_tic_tac_toe_standalone.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/tictactoe
@@ -405,8 +386,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit43]
+[Unit42]
 FileName=_tensorflow_cpp\_tensorflow\backup_tensorFlowApp.cpp
+CompileCpp=1
+Folder=_tensorflow_cpp/tensorflow
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit43]
+FileName=_tensorflow_cpp\_tensorflow\backup_test_tensorFlowAppCPP_dll.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/tensorflow
 Compile=1
@@ -436,7 +427,7 @@ BuildCmd=
 CompileCpp=1
 
 [Unit11]
-FileName=_tensorflow_cpp\doc\scm.md
+FileName=_tensorflow_cpp\doc\strategy.md
 CompileCpp=1
 Folder=_tensorflow_cpp/doc
 Compile=0
@@ -446,7 +437,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit24]
-FileName=_tensorflow_cpp\_sortbenchmark\sort_model_25.txt
+FileName=_tensorflow_cpp\_sortbenchmark\sort_model_trained.txt
 Folder=_tensorflow_cpp/sortbenchmark
 Compile=0
 Link=0
@@ -455,9 +446,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit38]
-FileName=_tensorflow_cpp\doc\Questions.md
+FileName=_tensorflow_cpp\_tictactoe\_backup_test_tic_tac_toe_integrated.cpp
 CompileCpp=1
-Folder=_tensorflow_cpp/doc
+Folder=_tensorflow_cpp/tictactoe
 Compile=1
 Link=1
 Priority=1000
@@ -465,9 +456,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit36]
-FileName=_tensorflow_cpp\_tetris\tetris.cpp
+FileName=_tensorflow_cpp\doc\tensorflow.md
 CompileCpp=1
-Folder=_tensorflow_cpp/tetris
+Folder=_tensorflow_cpp/doc
 Compile=1
 Link=1
 Priority=1000
@@ -484,8 +475,17 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit31]
-FileName=_tensorflow_cpp\_tensorflow\tictactoe_tf_model.zip
-Folder=_tensorflow_cpp/tensorflow
+FileName=_tensorflow_cpp\_sortbenchmark\rank_model_25_rank.txt
+Folder=_tensorflow_cpp/sortbenchmark
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit10]
+FileName=_tensorflow_cpp\doc\scm.md
+Folder=_tensorflow_cpp/doc
 Compile=0
 Link=0
 Priority=1000
