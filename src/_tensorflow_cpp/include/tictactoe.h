@@ -245,7 +245,7 @@ public:
 std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<> dis(0.0, 1.0);
-std::uniform_int_distribution<> moveDis(0, 8);
+std::uniform_int_distribution<>  moveDis(0, 8);
 
 class NeuralNetwork {
 public:
@@ -377,8 +377,8 @@ public:
 	        file.close();
 	        return true;
 	    }
-	    //
-	    // Loads the model from a text file
+    //
+    // Loads the model from a text file
 	bool loadModel(const std::string& filename) {
 	    std::ifstream file(filename);
 	    if (!file.is_open()) {
@@ -425,7 +425,6 @@ public:
 //-----------------------------
 // utilities
 //-----------------------------
-
 
 // Convert board to network input (-1, 0, 1) -> (double)
 std::vector<double> boardToInput(const std::vector<int>& board) {
@@ -522,7 +521,6 @@ void trainStep(NeuralNetwork& net) {
 	
 }
 
-
 std::vector<double> boardToInput(const int board[9]) {
     std::vector<double> input(9);
     for (int i = 0; i < 9; ++i) {
@@ -530,7 +528,6 @@ std::vector<double> boardToInput(const int board[9]) {
     }
     return input;
 }
-
 
 std::vector<double> softmax(const std::vector<double>& logits, double temp) {
     std::vector<double> probs(9);
@@ -574,7 +571,7 @@ int selectSampled(const std::vector<double>& probs, const TicTacToe& game) {
     return valid[dist(gen)];
 }
 
-int selectRandomMove(/*const*/ TicTacToe& game) {
+int selectRandomMove(TicTacToe& game) {
     auto valid = game.getValidMoves();
     if (valid.empty()) return -1;
     std::random_device rd;
@@ -642,7 +639,6 @@ int minimax(const int board[9], int depth, bool isMaximizing, int alpha = -1000,
     }
 }
 
-
 int minimaxMove(std::vector<int> board, int player) {
 
     int bestMove = -1;
@@ -705,127 +701,141 @@ int selectMove(const std::vector<double>& output, /*const*/ TicTacToe& game, int
 // ----------------------------
 
 bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temperature) {
-    
-    TicTacToe game;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> starter(0, 1);
-    int turn = (starter(gen) == 0) ? 1 : -1;
+    //////////////////////////////////////////////////////
+    // VARIABLE INITIALIZATION
+    //////////////////////////////////////////////////////
 
+	//
+    TensorFlowTicTacToe tf;
+	NeuralNetwork       netStandalone(9, 18, 9);;		
+    TicTacToe game;
+
+   	//
+   	std::random_device              rd;
+    std::mt19937                    gen(rd());
+    std::uniform_int_distribution<> starter(0, 1);
+    int                             turn = (starter(gen) == 0) ? 1 : -1;
+
+	//
+    int              winner;
+	int              move = -1;
     std::vector<int> moves;
 
+	//
     for (int i = 0; i < 9; ++i) {
         result.history[0][i] = game.board[i];
     }
     result.historyCount = 1;
 
+    //////////////////////////////////////////////////////
+    // MODEL LOAD 
+    //////////////////////////////////////////////////////
 
-	//
-   if (aiMode == TENSORFLOW) {
-		//
-	    TensorFlowTicTacToe tf;
+    if (aiMode == TENSORFLOW) {
 	    
 	    // load model
-		if (!tf.LoadModel("tictactoe_tf_model")) {
+	    const char* modelFile = "tictactoe_tf_model";
+		
+		//	
+		if (!tf.LoadModel(modelFile)) {
 	        std::cerr << "❌ Failed to initialize TensorFlow model.\n";
 	        return false;
 	    }
-	
-		//
-	    while (true) {
-	        int move = -1;
-	
-	        float input[9];
-	        for (int i = 0; i < 9; ++i) input[i] = static_cast<float>(game.board[i]);
-	        if (!tf.PredictBestMove(input, move)) {
-	            std::cerr << "❌ Prediction failed!\n";
-	            return false;
-	        }
-	
-	
-	        if (move < 0 || move >= 9 || game.board[move] != 0) {
-	            auto valid = game.getValidMoves();
-	            if (valid.empty()) break;
-	            move = valid[0];
-	        }
-	
-	        game.board[move] = turn;
-	        moves.push_back(move);
-	
-	        if (result.historyCount < 10) {
-	            for (int i = 0; i < 9; ++i) {
-	                result.history[result.historyCount][i] = game.board[i];
-	            }
-	            result.historyCount++;
-	        }
-	
-	        int winner;
-	        if (game.isGameOver(winner)) {
-	            result.winner = winner;
-	            break;
-	        }
-	        turn = -turn;
-	    }	
+	    
 	} 
 	else 
-    {
-    	//
-	    NeuralNetwork          netStandalone(9, 18, 9);;		
-	
+	{
+		// Load model
 	    const std::string modelFile = "tictactoe_model.txt";
 	
+		//
 	    if (aiMode != MINIMAX && !netStandalone.loadModel(modelFile)) {
-	     	//
+	     	
+			//
 	        for (int i = 0; i < 5000; ++i) 
-					trainStep(netStandalone);
+				trainStep(netStandalone);
 	        //
 			netStandalone.saveModel(modelFile);
 	    }
-	
+	}  
+
+    //////////////////////////////////////////////////////
+    // GAME LOOP
+    //////////////////////////////////////////////////////
+   
+	//
+    while (true) {
+
+		///////////////////////////////////////////
+		// DECIDE MOVE
+		///////////////////////////////////////////
+		if (aiMode == TENSORFLOW) {
+		 	
+            float input[9];
+			for (int i = 0; i < 9; ++i) input[i] = static_cast<float>(game.board[i]);
+		        if (!tf.PredictBestMove(input, move)) {
+		            std::cerr << "❌ Prediction failed!\n";
+		            return false;
+		        }
+		        
+		} else if (aiMode == MINIMAX) {
+            move = minimaxMove(game.board, turn);
+        } else {
+            std::vector<double> input = boardToInput(game.board);
+            netStandalone.forward(input);
+            move = selectMove(netStandalone.output, game, aiMode, temperature);
+        }
+
+		///////////////////////////////////////////
+		// VALIDATE MOVE
+		///////////////////////////////////////////
+        
+		if (move < 0 || move >= 9 || game.board[move] != 0) {
+            auto valid = game.getValidMoves();
+            if (valid.empty()) break;
+            move = valid[0];
+        }
+
+		///////////////////////////////////////////
+		// WRITE ON HISTORY
+		///////////////////////////////////////////
+
 		//
-	    while (true) {
-	        int move = -1;
+        game.board[move] = turn;
+        moves.push_back(move);
+
+		//
+        if (result.historyCount < 10) {
+            for (int i = 0; i < 9; ++i) {
+                result.history[result.historyCount][i] = game.board[i];
+            }
+            result.historyCount++;
+        }
+
+		///////////////////////////////////////////
+		// DECIDE WINNER
+		///////////////////////////////////////////
+
+        if (game.isGameOver(winner)) {
+            //
+            break;
+        }
+        
+        //
+        turn = -turn;
+	}	
+
 	
-	        if (aiMode == MINIMAX) {
-	            move = minimaxMove(game.board, turn);
-	        } else {
-	            std::vector<double> input = boardToInput(game.board);
-	            netStandalone.forward(input);
-	            move = selectMove(netStandalone.output, game, aiMode, temperature);
-	        }
-	
-	        if (move < 0 || move >= 9 || game.board[move] != 0) {
-	            auto valid = game.getValidMoves();
-	            if (valid.empty()) break;
-	            move = valid[0];
-	        }
-	
-	        game.board[move] = turn;
-	        moves.push_back(move);
-	
-	        if (result.historyCount < 10) {
-	            for (int i = 0; i < 9; ++i) {
-	                result.history[result.historyCount][i] = game.board[i];
-	            }
-	            result.historyCount++;
-	        }
-	
-	        int winner;
-	        if (game.isGameOver(winner)) {
-	            result.winner = winner;
-	            break;
-	        }
-	        turn = -turn;
-	    	
-		}
-	}
-	
-    //    
+	//////////////////////////////////////////////////////
+    // RETORN FINAL RESULT
+    //////////////////////////////////////////////////////
+   
+	result.winner = winner;  
     for (int i = 0; i < 9; ++i) {
         result.finalBoard[i] = game.board[i];
         result.moves[i] = (i < static_cast<int>(moves.size())) ? moves[i] : -1;
     }
-    result.moveCount = static_cast<int>(moves.size());
+    result.moveCount          = static_cast<int>(moves.size());
 	
 	//
     return true;
