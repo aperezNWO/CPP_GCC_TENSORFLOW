@@ -452,29 +452,7 @@ int selectMove(const std::vector<double>& output, const TicTacToe& game) {
     return std::distance(masked.begin(), std::max_element(masked.begin(), masked.end()));
 }
 
-int selectMoveWithSoftmax(const std::vector<double>& output, const TicTacToe& game) {
-    std::vector<double> logits = output;
-    maskOutputs(logits, game); // Set invalid moves to very low value
-
-    // Apply softmax to turn into probabilities
-    double maxLogit = *std::max_element(logits.begin(), logits.end());
-    double sumExp = 0.0;
-    std::vector<double> probs;
-
-    for (double logit : logits) {
-        double expVal = std::exp(logit - maxLogit); // Stable softmax
-        probs.push_back(expVal);
-        sumExp += expVal;
-    }
-
-    // Normalize
-    for (double& p : probs) p /= sumExp;
-
-    // Sample from distribution
-    std::discrete_distribution<> dist(probs.begin(), probs.end());
-    return dist(gen); // gen = global random generator
-}
-
+//
 void trainStep(NeuralNetwork& net) { 
     TicTacToe game;
     std::vector<std::pair<std::vector<double>, std::vector<double>>> history; // (state, move_prob)
@@ -521,6 +499,7 @@ void trainStep(NeuralNetwork& net) {
 	
 }
 
+//
 std::vector<double> boardToInput(const int board[9]) {
     std::vector<double> input(9);
     for (int i = 0; i < 9; ++i) {
@@ -529,7 +508,9 @@ std::vector<double> boardToInput(const int board[9]) {
     return input;
 }
 
+//
 std::vector<double> softmax(const std::vector<double>& logits, double temp) {
+	//
     std::vector<double> probs(9);
     double maxVal = *std::max_element(logits.begin(), logits.end());
 
@@ -543,6 +524,7 @@ std::vector<double> softmax(const std::vector<double>& logits, double temp) {
     return probs;
 }
 
+//
 int selectGreedy(const std::vector<double>& scores, const TicTacToe& game) {
     std::vector<std::pair<double, int>> candidates;
     for (int i = 0; i < 9; ++i) {
@@ -554,6 +536,7 @@ int selectGreedy(const std::vector<double>& scores, const TicTacToe& game) {
     return std::max_element(candidates.begin(), candidates.end())->second;
 }
 
+//
 int selectSampled(const std::vector<double>& probs, const TicTacToe& game) {
     std::vector<int> valid;
     std::vector<double> weights;
@@ -571,6 +554,7 @@ int selectSampled(const std::vector<double>& probs, const TicTacToe& game) {
     return valid[dist(gen)];
 }
 
+//
 int selectRandomMove(TicTacToe& game) {
     auto valid = game.getValidMoves();
     if (valid.empty()) return -1;
@@ -675,10 +659,7 @@ int minimaxMove(std::vector<int> board, int player) {
 // Main Move Selector
 // ----------------------------
 
-int selectMove(const std::vector<double>& output, /*const*/ TicTacToe& game, int aiMode, double temperature) {
-    if (aiMode == RANDOM) {
-        return selectRandomMove(game);
-    }
+int selectMove(const std::vector<double>& output, TicTacToe& game, int aiMode, double temperature) {
 
     if (aiMode == MINIMAX || aiMode == TENSORFLOW) {
         return -1;
@@ -687,6 +668,8 @@ int selectMove(const std::vector<double>& output, /*const*/ TicTacToe& game, int
     auto probs = softmax(output, temperature);
 
     switch (aiMode) {
+        case RANDOM:
+	        return selectRandomMove(game);
         case EXPERT:
             return selectGreedy(probs, game);
         case CREATIVE:
