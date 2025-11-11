@@ -827,7 +827,7 @@ bool RunTicTacToeSelfPlay(TicTacToeResultOnline& result, int aiMode, double temp
 
 	
 	//////////////////////////////////////////////////////
-    // RETORN FINAL RESULT
+    // RETURN FINAL RESULT
     //////////////////////////////////////////////////////
    
 	result.winner = winner;  
