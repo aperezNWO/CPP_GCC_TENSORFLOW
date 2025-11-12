@@ -6,6 +6,16 @@ g++ -std=c++20 -O3 -o tetris_ga_solver tetris_ga_solver.cpp
 
 [ask to fix to : kimi.com]
 
+-- [_] compiles but does nothing
+
+
+*/
+
+/*
+SELF PLAYING TETRIS WITH GENETIC ALGORITHM SOLVER
+
+Compile with:
+g++ -std=c++20 -O3 -o tetris_ga_solver tetris_ga_solver.cpp
 */
 
 #include <iostream>
@@ -20,6 +30,12 @@ g++ -std=c++20 -O3 -o tetris_ga_solver tetris_ga_solver.cpp
 #include <numeric>
 #include <limits>
 #include <iomanip>
+#include <locale>
+
+// For Windows ANSI support
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 // --- Global Constants ---
 constexpr int BOARD_WIDTH = 10;
@@ -33,6 +49,27 @@ constexpr double MUTATION_RATE = 0.1;
 constexpr double MUTATION_STRENGTH = 0.5;
 constexpr int TOURNAMENT_SIZE = 5;
 constexpr double ELITISM_RATE = 0.1;
+
+// Set to false for ASCII-only mode (maximum compatibility)
+constexpr bool USE_FANCY_GRAPHICS = true;
+
+// --- Console Setup ---
+void SetupConsole() {
+    // Enable UTF-8 locale for proper character encoding
+    std::setlocale(LC_ALL, "en_US.UTF-8");
+    
+#ifdef _WIN32
+    // Enable ANSI escape sequences on Windows 10+
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut != INVALID_HANDLE_VALUE) {
+        DWORD dwMode = 0;
+        if (GetConsoleMode(hOut, &dwMode)) {
+            dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            SetConsoleMode(hOut, dwMode);
+        }
+    }
+#endif
+}
 
 // --- Random Number Generation ---
 namespace Random {
@@ -54,19 +91,20 @@ namespace Random {
     }
 }
 
-// --- ANSI Colors ---
+// --- Graphics Constants ---
 const std::string RESET_COLOR = "\033[0m";
 const std::string EMPTY_COLOR = "\033[1;30m";
-const std::string I_COLOR = "\033[1;36m";   // Cyan
-const std::string O_COLOR = "\033[1;33m";   // Yellow
-const std::string T_COLOR = "\033[1;35m";   // Magenta
-const std::string S_COLOR = "\033[1;32m";   // Green
-const std::string Z_COLOR = "\033[1;31m";   // Red
-const std::string J_COLOR = "\033[1;34m";   // Blue
-const std::string L_COLOR = "\033[1;91m";   // Bright Red
+const std::string I_COLOR = "\033[1;36m";
+const std::string O_COLOR = "\033[1;33m";
+const std::string T_COLOR = "\033[1;35m";
+const std::string S_COLOR = "\033[1;32m";
+const std::string Z_COLOR = "\033[1;31m";
+const std::string J_COLOR = "\033[1;34m";
+const std::string L_COLOR = "\033[1;91m";
 const std::string WALL_COLOR = "\033[1;37m";
 
 std::string GetColor(int pieceId) {
+    if (!USE_FANCY_GRAPHICS) return "";
     switch (pieceId) {
         case 0: return EMPTY_COLOR;
         case 1: return I_COLOR;
@@ -81,203 +119,75 @@ std::string GetColor(int pieceId) {
 }
 
 void ClearScreen() {
+    if (!USE_FANCY_GRAPHICS) {
+        std::cout << "\n\n";
+        return;
+    }
     std::cout << "\033[2J\033[1;1H";
 }
 
 // Define the Shape type
 using Shape = std::array<std::array<int, 4>, 4>;
 
-const std::array<std::array<Shape, 4>, 7> TETROMINO_SHAPES = {
-    // I Piece
-    {
-        {
-            {0, 0, 0, 0},
-            {1, 1, 1, 1},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 1, 0, 0},
-            {0, 1, 0, 0},
-            {0, 1, 0, 0},
-            {0, 1, 0, 0}
-        },
-        {
-            {0, 0, 0, 0},
-            {0, 0, 0, 0},
-            {1, 1, 1, 1},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 0, 1, 0},
-            {0, 0, 1, 0},
-            {0, 0, 1, 0},
-            {0, 0, 1, 0}
-        }
-    },
-    // O Piece
-    {
-        {
-            {0, 2, 2, 0},
-            {0, 2, 2, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 2, 2, 0},
-            {0, 2, 2, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 2, 2, 0},
-            {0, 2, 2, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 2, 2, 0},
-            {0, 2, 2, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        }
-    },
-    // T Piece
-    {
-        {
-            {0, 0, 0, 0},
-            {3, 3, 3, 0},
-            {0, 3, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 3, 0, 0},
-            {3, 3, 0, 0},
-            {0, 3, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 3, 0, 0},
-            {3, 3, 3, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 3, 0, 0},
-            {0, 3, 3, 0},
-            {0, 3, 0, 0},
-            {0, 0, 0, 0}
-        }
-    },
-    // S Piece
-    {
-        {
-            {0, 0, 0, 0},
-            {0, 4, 4, 0},
-            {4, 4, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 4, 0, 0},
-            {0, 4, 4, 0},
-            {0, 0, 4, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 0, 0, 0},
-            {0, 0, 4, 4},
-            {0, 4, 4, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 4, 0, 0},
-            {0, 4, 4, 0},
-            {0, 0, 4, 0},
-            {0, 0, 0, 0}
-        }
-    },
-    // Z Piece
-    {
-        {
-            {0, 0, 0, 0},
-            {5, 5, 0, 0},
-            {0, 5, 5, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 0, 5, 0},
-            {0, 5, 5, 0},
-            {0, 5, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 0, 0, 0},
-            {0, 5, 5, 0},
-            {0, 0, 5, 5},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 0, 5, 0},
-            {0, 5, 5, 0},
-            {0, 5, 0, 0},
-            {0, 0, 0, 0}
-        }
-    },
-    // J Piece
-    {
-        {
-            {0, 0, 0, 0},
-            {6, 6, 6, 0},
-            {0, 0, 6, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 6, 0, 0},
-            {0, 6, 0, 0},
-            {6, 6, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {6, 0, 0, 0},
-            {6, 6, 6, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 6, 6, 0},
-            {0, 6, 0, 0},
-            {0, 6, 0, 0},
-            {0, 0, 0, 0}
-        }
-    },
-    // L Piece
-    {
-        {
-            {0, 0, 0, 0},
-            {7, 7, 7, 0},
-            {7, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {7, 7, 0, 0},
-            {0, 7, 0, 0},
-            {0, 7, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 0, 7, 0},
-            {7, 7, 7, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 7, 0, 0},
-            {0, 7, 0, 0},
-            {0, 7, 7, 0},
-            {0, 0, 0, 0}
-        }
-    }
+// --- Move struct ---
+struct Move {
+    int rotation = 0;
+    int x = 0;
+    double score = 0.0;
 };
+
+// --- Tetromino Shapes ---
+const std::array<std::array<Shape, 4>, 7> TETROMINO_SHAPES = {{
+    // I Piece
+    std::array<Shape, 4>{{
+        Shape{{{0,0,0,0}, {1,1,1,1}, {0,0,0,0}, {0,0,0,0}}},
+        Shape{{{0,1,0,0}, {0,1,0,0}, {0,1,0,0}, {0,1,0,0}}},
+        Shape{{{0,0,0,0}, {0,0,0,0}, {1,1,1,1}, {0,0,0,0}}},
+        Shape{{{0,0,1,0}, {0,0,1,0}, {0,0,1,0}, {0,0,1,0}}}
+    }},
+    // O Piece
+    std::array<Shape, 4>{{
+        Shape{{{0,2,2,0}, {0,2,2,0}, {0,0,0,0}, {0,0,0,0}}},
+        Shape{{{0,2,2,0}, {0,2,2,0}, {0,0,0,0}, {0,0,0,0}}},
+        Shape{{{0,2,2,0}, {0,2,2,0}, {0,0,0,0}, {0,0,0,0}}},
+        Shape{{{0,2,2,0}, {0,2,2,0}, {0,0,0,0}, {0,0,0,0}}}
+    }},
+    // T Piece
+    std::array<Shape, 4>{{
+        Shape{{{0,0,0,0}, {3,3,3,0}, {0,3,0,0}, {0,0,0,0}}},
+        Shape{{{0,3,0,0}, {3,3,0,0}, {0,3,0,0}, {0,0,0,0}}},
+        Shape{{{0,3,0,0}, {3,3,3,0}, {0,0,0,0}, {0,0,0,0}}},
+        Shape{{{0,3,0,0}, {0,3,3,0}, {0,3,0,0}, {0,0,0,0}}}
+    }},
+    // S Piece
+    std::array<Shape, 4>{{
+        Shape{{{0,0,0,0}, {0,4,4,0}, {4,4,0,0}, {0,0,0,0}}},
+        Shape{{{0,4,0,0}, {0,4,4,0}, {0,0,4,0}, {0,0,0,0}}},
+        Shape{{{0,0,0,0}, {0,4,4,0}, {4,4,0,0}, {0,0,0,0}}},
+        Shape{{{0,4,0,0}, {0,4,4,0}, {0,0,4,0}, {0,0,0,0}}}
+    }},
+    // Z Piece
+    std::array<Shape, 4>{{
+        Shape{{{0,0,0,0}, {5,5,0,0}, {0,5,5,0}, {0,0,0,0}}},
+        Shape{{{0,0,5,0}, {0,5,5,0}, {0,5,0,0}, {0,0,0,0}}},
+        Shape{{{0,0,0,0}, {5,5,0,0}, {0,5,5,0}, {0,0,0,0}}},
+        Shape{{{0,0,5,0}, {0,5,5,0}, {0,5,0,0}, {0,0,0,0}}}
+    }},
+    // J Piece
+    std::array<Shape, 4>{{
+        Shape{{{0,0,0,0}, {6,6,6,0}, {0,0,6,0}, {0,0,0,0}}},
+        Shape{{{0,6,0,0}, {0,6,0,0}, {6,6,0,0}, {0,0,0,0}}},
+        Shape{{{6,0,0,0}, {6,6,6,0}, {0,0,0,0}, {0,0,0,0}}},
+        Shape{{{0,6,6,0}, {0,6,0,0}, {0,6,0,0}, {0,0,0,0}}}
+    }},
+    // L Piece
+    std::array<Shape, 4>{{
+        Shape{{{0,0,0,0}, {7,7,7,0}, {7,0,0,0}, {0,0,0,0}}},
+        Shape{{{7,7,0,0}, {0,7,0,0}, {0,7,0,0}, {0,0,0,0}}},
+        Shape{{{0,0,7,0}, {7,7,7,0}, {0,0,0,0}, {0,0,0,0}}},
+        Shape{{{0,7,0,0}, {0,7,0,0}, {0,7,7,0}, {0,0,0,0}}}
+    }}
+}};
 
 // --- Game Piece ---
 struct Piece {
@@ -358,6 +268,29 @@ public:
     }
 
     void Render(int score, int lines, int level) const {
+        if (!USE_FANCY_GRAPHICS) {
+            // ASCII-only rendering
+            std::cout << "+----------------------+\n";
+            for (int r = 0; r < BOARD_HEIGHT; ++r) {
+                std::cout << "|";
+                for (int c = 0; c < BOARD_WIDTH; ++c) {
+                    if (grid[r][c] == 0) {
+                        std::cout << " .";
+                    } else {
+                        std::cout << " #";
+                    }
+                }
+                std::cout << " |";
+                if (r == 2) std::cout << "  Score: " << score;
+                if (r == 4) std::cout << "  Lines: " << lines;
+                if (r == 6) std::cout << "  Level: " << level;
+                std::cout << "\n";
+            }
+            std::cout << "+----------------------+\n";
+            return;
+        }
+
+        // Fancy Unicode rendering
         std::cout << WALL_COLOR << "╔══════════════════════╗" << RESET_COLOR << "\n";
         for (int r = 0; r < BOARD_HEIGHT; ++r) {
             std::cout << WALL_COLOR << "║" << RESET_COLOR;
@@ -454,23 +387,19 @@ struct Individual {
     bool operator>(const Individual& other) const { return fitness > other.fitness; }
 };
 
-struct Move {
-    int rotation = 0;
-    int x = 0;
-    double score = 0.0;
-};
-
 // --- AI & GA Functions ---
 Move FindBestMove(const Board& board, int pieceId, const HeuristicWeights& weights) {
     Move best = {0, 0, std::numeric_limits<double>::lowest()};
     for (int r = 0; r < 4; ++r) {
         for (int x = -3; x < BOARD_WIDTH + 3; ++x) {
-            Piece piece{pieceId, r, x, 0};
             int y = 0;
-            while (!board.IsValid({pieceId, r, x, y})) y--;
-            piece.y = y;
+            while (!board.IsValid({pieceId, r, x, y}) && y > -BOARD_HEIGHT) y--;
+            
+            if (y <= -BOARD_HEIGHT) continue;
+            
             while (board.IsValid({pieceId, r, x, y + 1})) y++;
-            piece.y = y;
+            
+            Piece piece{pieceId, r, x, y};
             if (!board.IsValid(piece)) continue;
 
             Board next = board;
@@ -542,6 +471,7 @@ HeuristicWeights RunGeneticAlgorithm() {
     std::vector<Individual> pop(POPULATION_SIZE);
     for (auto& ind : pop) ind.weights = HeuristicWeights::RandomWeights();
 
+    std::cout << "Starting Genetic Algorithm training...\n";
     for (int gen = 0; gen < NUM_GENERATIONS; ++gen) {
         for (auto& ind : pop) {
             double f = 0;
@@ -568,6 +498,7 @@ HeuristicWeights RunGeneticAlgorithm() {
         std::cout << "Gen " << gen+1 << ": Best=" << pop[0].fitness << " ";
         pop[0].weights.Print(); std::cout << "\n";
     }
+    std::cout << "Training complete!\n";
     return pop[0].weights;
 }
 
@@ -577,6 +508,7 @@ void PlayVisibleGame(const HeuristicWeights& w) {
     int score = 0, lines = 0, level = 1;
     bool over = false;
 
+    std::cout << "--- AI Playing Tetris ---\n";
     while (!over) {
         int id = Random::Int(1, 7);
         Piece p{id, 0, 3, 0};
@@ -604,7 +536,13 @@ void PlayVisibleGame(const HeuristicWeights& w) {
 }
 
 int main() {
+    SetupConsole();  // Must be called first!
+    
+    std::cout << "Tetris AI Genetic Algorithm Solver\n";
     HeuristicWeights best = RunGeneticAlgorithm();
+    std::cout << "\nBest weights found: ";
+    best.Print();
+    std::cout << "\n\nStarting visual demonstration...\n";
     PlayVisibleGame(best);
     return 0;
 }
