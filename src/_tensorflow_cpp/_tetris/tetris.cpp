@@ -11,6 +11,7 @@ g++ -std=c++20 -O3 -o tetris_ga_solver tetris_ga_solver.cpp
 
 */
 
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -100,6 +101,7 @@ const std::string Z_COLOR = "\033[1;31m";
 const std::string J_COLOR = "\033[1;34m";
 const std::string L_COLOR = "\033[1;91m";
 const std::string WALL_COLOR = "\033[1;37m";
+const std::string PREVIEW_COLOR = "\033[1;90m";
 
 std::string GetColor(int pieceId) {
     if (!USE_FANCY_GRAPHICS) return "";
@@ -265,23 +267,62 @@ public:
         return !IsValid(piece);
     }
 
-    void Render(int score, int lines, int level) const {
+    // Modified render with piece preview and optional current piece
+    void Render(int score, int lines, int level, const Piece* currentPiece = nullptr, int nextPieceId = 0) const {
+        // Create a temporary grid with the current piece for rendering
+        auto tempGrid = grid;
+        
+        if (currentPiece && IsValid(*currentPiece)) {
+            const auto& shape = currentPiece->GetShape();
+            for (int r = 0; r < 4; ++r) {
+                for (int c = 0; c < 4; ++c) {
+                    if (shape[r][c] != 0) {
+                        int py = currentPiece->y + r;
+                        int px = currentPiece->x + c;
+                        if (py >= 0 && py < BOARD_HEIGHT && px >= 0 && px < BOARD_WIDTH) {
+                            tempGrid[py][px] = shape[r][c];
+                        }
+                    }
+                }
+            }
+        }
+
         if (!USE_FANCY_GRAPHICS) {
             // ASCII-only rendering
-            std::cout << "+----------------------+\n";
+            std::cout << "+----------------------+      Next:\n";
             for (int r = 0; r < BOARD_HEIGHT; ++r) {
                 std::cout << "|";
                 for (int c = 0; c < BOARD_WIDTH; ++c) {
-                    if (grid[r][c] == 0) {
+                    if (tempGrid[r][c] == 0) {
                         std::cout << " .";
                     } else {
                         std::cout << " #";
                     }
                 }
                 std::cout << " |";
-                if (r == 2) std::cout << "  Score: " << score;
-                if (r == 4) std::cout << "  Lines: " << lines;
-                if (r == 6) std::cout << "  Level: " << level;
+                
+                // Show next piece preview on the right
+                if (r >= 2 && r <= 5 && nextPieceId > 0) {
+                    const auto& nextShape = TETROMINO_SHAPES[nextPieceId - 1][0];
+                    int previewRow = r - 2;
+                    std::cout << "      ";
+                    for (int c = 0; c < 4; ++c) {
+                        if (nextShape[previewRow][c] != 0) {
+                            std::cout << "# ";
+                        } else {
+                            std::cout << "  ";
+                        }
+                    }
+                } else if (r == 1) {
+                    std::cout << "      ----";
+                } else if (r == 0) {
+                    std::cout << "      Next";
+                }
+                
+                // Show stats
+                if (r == 7) std::cout << "  Score: " << score;
+                if (r == 9) std::cout << "  Lines: " << lines;
+                if (r == 11) std::cout << "  Level: " << level;
                 std::cout << "\n";
             }
             std::cout << "+----------------------+\n";
@@ -289,23 +330,43 @@ public:
         }
 
         // Fancy Unicode rendering
-        std::cout << WALL_COLOR << "╔══════════════════════╗" << RESET_COLOR << "\n";
+        std::cout << WALL_COLOR << "╔═════════════════════╗" << PREVIEW_COLOR << "     " << RESET_COLOR << "\n";
         for (int r = 0; r < BOARD_HEIGHT; ++r) {
             std::cout << WALL_COLOR << "║" << RESET_COLOR;
             for (int c = 0; c < BOARD_WIDTH; ++c) {
-                if (grid[r][c] == 0) {
+                if (tempGrid[r][c] == 0) {
                     std::cout << EMPTY_COLOR << " ." << RESET_COLOR;
                 } else {
-                    std::cout << GetColor(grid[r][c]) << " ■" << RESET_COLOR;
+                    std::cout << GetColor(tempGrid[r][c]) << " ■" << RESET_COLOR;
                 }
             }
             std::cout << WALL_COLOR << " ║" << RESET_COLOR;
-            if (r == 2) std::cout << "  Score: " << score;
-            if (r == 4) std::cout << "  Lines: " << lines;
-            if (r == 6) std::cout << "  Level: " << level;
+            
+            // Show next piece preview
+            if (r >= 2 && r <= 5 && nextPieceId > 0) {
+                const auto& nextShape = TETROMINO_SHAPES[nextPieceId - 1][0];
+                int previewRow = r - 2;
+                std::cout << PREVIEW_COLOR << "      " << RESET_COLOR;
+                for (int c = 0; c < 4; ++c) {
+                    if (nextShape[previewRow][c] != 0) {
+                        std::cout << GetColor(nextShape[previewRow][c]) << "■ " << RESET_COLOR;
+                    } else {
+                        std::cout << "  ";
+                    }
+                }
+            } else if (r == 1) {
+                std::cout << PREVIEW_COLOR << "      ────" << RESET_COLOR;
+            } else if (r == 0) {
+                std::cout << PREVIEW_COLOR << "      Next" << RESET_COLOR;
+            }
+            
+            // Show stats
+            if (r == 7) std::cout << "  Score: " << score;
+            if (r == 9) std::cout << "  Lines: " << lines;
+            if (r == 11) std::cout << "  Level: " << level;
             std::cout << "\n";
         }
-        std::cout << WALL_COLOR << "╚══════════════════════╝" << RESET_COLOR << "\n";
+        std::cout << WALL_COLOR << "╚═════════════════════╝" << RESET_COLOR << "\n";
     }
 
     int GetAggregateHeight() const {
@@ -454,16 +515,23 @@ Move FindBestMove(const Board& board, int pieceId, const HeuristicWeights& weigh
 double SimulateGame(const HeuristicWeights& weights) {
     Board board;
     int lines = 0, moves = 0;
+    int nextPiece = Random::Int(1, 7);
+    
     while (moves < MAX_MOVES_PER_GAME) {
-        int id = Random::Int(1, 7);
-        Piece p{id, 0, 3, 0};
+        int currentPiece = nextPiece;
+        nextPiece = Random::Int(1, 7);
+        
+        Piece p{currentPiece, 0, 3, 0};
         if (board.IsGameOver(p)) break;
-        Move m = FindBestMove(board, id, weights);
+        
+        Move m = FindBestMove(board, currentPiece, weights);
         p.rotation = m.rotation; p.x = m.x;
+        
         int y = 0;
-        while (!board.IsValid({id, m.rotation, m.x, y})) y--;
+        while (!board.IsValid({currentPiece, m.rotation, m.x, y})) y--;
         p.y = y;
-        while (board.IsValid({id, m.rotation, m.x, p.y + 1})) p.y++;
+        while (board.IsValid({currentPiece, m.rotation, m.x, p.y + 1})) p.y++;
+        
         board.PlacePiece(p);
         lines += board.ClearLines();
         moves++;
@@ -535,19 +603,44 @@ void PlayVisibleGame(const HeuristicWeights& w) {
     ClearScreen();
     Board board;
     int score = 0, lines = 0, level = 1;
+    int nextPieceId = Random::Int(1, 7);
     bool over = false;
 
     std::cout << "--- AI Playing Tetris ---\n";
+    
     while (!over) {
-        int id = Random::Int(1, 7);
-        Piece p{id, 0, 3, 0};
+        int currentPieceId = nextPieceId;
+        nextPieceId = Random::Int(1, 7);
+        Piece p{currentPieceId, 0, 3, 0};
+        
         if (board.IsGameOver(p)) { over = true; break; }
-        Move m = FindBestMove(board, id, w);
+        
+        // Show initial position (preview at top)
+        ClearScreen();
+        std::cout << "--- AI Playing ---\n";
+        board.Render(score, lines, level, &p, nextPieceId);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        
+        // Find best move
+        Move m = FindBestMove(board, currentPieceId, w);
         p.rotation = m.rotation; p.x = m.x;
+        
+        // Find final y position
         int y = 0;
-        while (!board.IsValid({id, m.rotation, m.x, y})) y--;
-        p.y = y;
-        while (board.IsValid({id, m.rotation, m.x, p.y+1})) p.y++;
+        while (!board.IsValid({currentPieceId, m.rotation, m.x, y})) y--;
+        int finalY = y;
+        while (board.IsValid({currentPieceId, m.rotation, m.x, finalY + 1})) finalY++;
+        
+        // Show hard drop animation (fast but visible)
+        for (int dropY = y; dropY <= finalY; ++dropY) {
+            p.y = dropY;
+            ClearScreen();
+            std::cout << "--- AI Playing ---\n";
+            board.Render(score, lines, level, &p, nextPieceId);
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
+        
+        p.y = finalY;
         board.PlacePiece(p);
         int cleared = board.ClearLines();
         if (cleared) {
@@ -555,10 +648,12 @@ void PlayVisibleGame(const HeuristicWeights& w) {
             score += cleared * cleared * 100 * level;
             level = 1 + (lines / 10);
         }
+        
+        // Show final placement briefly
         ClearScreen();
         std::cout << "--- AI Playing ---\n";
-        board.Render(score, lines, level);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        board.Render(score, lines, level, nullptr, nextPieceId);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
     ClearScreen();
     std::cout << "--- GAME OVER ---\nFinal Score: " << score << "\nFinal Lines: " << lines << "\n";
