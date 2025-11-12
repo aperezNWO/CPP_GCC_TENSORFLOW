@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
-UnitCount=43
+UnitCount=45
 
 [VersionInfo]
 Major=1
@@ -407,20 +407,20 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit44]
-FileName=_tensorflow_cpp\_tensorflow\backup_test_tensorFlowAppCPP_dll.cpp
+FileName=_tensorflow_cpp\_tetris\tetris_weights.txt
 CompileCpp=1
-Folder=_tensorflow_cpp/tensorflow
-Compile=1
-Link=1
+Folder=_tensorflow_cpp/tetris
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
 [Unit45]
-FileName=_tensorflow_cpp\_tictactoe\test_tic_tac_toe_standalone.cpp
-Folder=_tensorflow_cpp/tictactoe
-Compile=1
-Link=1
+FileName=_tensorflow_cpp\__dist\tetris_weights.txt
+Folder=_tensorflow_cpp/__dist
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
