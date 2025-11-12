@@ -1,173 +1,88 @@
+#ifndef TETRIS_ENGINE_H
+#define TETRIS_ENGINE_H
 
-#include <iostream>
-#include <vector>
-#include <string>
 #include <array>
 #include <random>
-#include <chrono>
-#include <thread>
-#include <algorithm>
-#include <cmath>
-#include <numeric>
 #include <limits>
-#include <iomanip>
-#include <locale>
-#include <fstream>
-#include <sstream>
+#include <algorithm>
 
-// For Windows ANSI support
-#ifdef _WIN32
-#include <windows.h>
-#endif
+namespace TetrisEngine {
 
-// --- Global Constants ---
+// --- Constants ---
 constexpr int BOARD_WIDTH = 10;
 constexpr int BOARD_HEIGHT = 20;
 
-constexpr int POPULATION_SIZE = 50;
-constexpr int NUM_GENERATIONS = 20;
-constexpr int NUM_GAMES_PER_FITNESS_TEST = 1;
-constexpr int MAX_MOVES_PER_GAME = 500;
-constexpr double MUTATION_RATE = 0.1;
-constexpr double MUTATION_STRENGTH = 0.5;
-constexpr int TOURNAMENT_SIZE = 5;
-constexpr double ELITISM_RATE = 0.1;
-
-// Set to false for ASCII-only mode (maximum compatibility)
-constexpr bool USE_FANCY_GRAPHICS = true;
-
-// Default file to save/load weights
-const std::string DEFAULT_WEIGHTS_FILE = "tetris_weights.txt";
-
-// --- Console Setup ---
-void SetupConsole() {
-    // Enable UTF-8 locale for proper character encoding
-    std::setlocale(LC_ALL, "en_US.UTF-8");
-    
-#ifdef _WIN32
-    // Enable ANSI escape sequences on Windows 10+
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hOut != INVALID_HANDLE_VALUE) {
-        DWORD dwMode = 0;
-        if (GetConsoleMode(hOut, &dwMode)) {
-            dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-            SetConsoleMode(hOut, dwMode);
-        }
-    }
-#endif
-}
+// --- Type Definitions ---
+using Shape = std::array<std::array<int, 4>, 4>;
 
 // --- Random Number Generation ---
 namespace Random {
-    std::mt19937 generator(std::random_device{}());
+    inline std::mt19937& Generator() {
+        static std::mt19937 gen(std::random_device{}());
+        return gen;
+    }
 
-    int Int(int min, int max) {
+    inline int Int(int min, int max) {
         std::uniform_int_distribution<int> dist(min, max);
-        return dist(generator);
+        return dist(Generator());
     }
 
-    double Double(double min, double max) {
+    inline double Double(double min, double max) {
         std::uniform_real_distribution<double> dist(min, max);
-        return dist(generator);
+        return dist(Generator());
     }
 
-    double Normal(double mean, double stddev) {
+    inline double Normal(double mean, double stddev) {
         std::normal_distribution<double> dist(mean, stddev);
-        return dist(generator);
+        return dist(Generator());
     }
 }
 
-// --- Graphics Constants ---
-const std::string RESET_COLOR = "\033[0m";
-const std::string EMPTY_COLOR = "\033[1;30m";
-const std::string I_COLOR = "\033[1;36m";
-const std::string O_COLOR = "\033[1;33m";
-const std::string T_COLOR = "\033[1;35m";
-const std::string S_COLOR = "\033[1;32m";
-const std::string Z_COLOR = "\033[1;31m";
-const std::string J_COLOR = "\033[1;34m";
-const std::string L_COLOR = "\033[1;91m";
-const std::string WALL_COLOR = "\033[1;37m";
-const std::string PREVIEW_COLOR = "\033[1;90m";
-
-std::string GetColor(int pieceId) {
-    if (!USE_FANCY_GRAPHICS) return "";
-    switch (pieceId) {
-        case 0: return EMPTY_COLOR;
-        case 1: return I_COLOR;
-        case 2: return O_COLOR;
-        case 3: return T_COLOR;
-        case 4: return S_COLOR;
-        case 5: return Z_COLOR;
-        case 6: return J_COLOR;
-        case 7: return L_COLOR;
-        default: return RESET_COLOR;
-    }
-}
-
-void ClearScreen() {
-    if (!USE_FANCY_GRAPHICS) {
-        std::cout << "\n\n";
-        return;
-    }
-    std::cout << "\033[2J\033[1;1H";
-}
-
-// Define the Shape type
-using Shape = std::array<std::array<int, 4>, 4>;
-
-// --- Move struct ---
-struct Move {
-    int rotation = 0;
-    int x = 0;
-    double score = 0.0;
-};
-
-// --- Tetromino Shapes ---
+// --- Tetromino Definitions ---
 const std::array<std::array<Shape, 4>, 7> TETROMINO_SHAPES = {{
-    // I Piece
+    // I Piece (ID: 1)
     std::array<Shape, 4>{{
         Shape{{{0,0,0,0}, {1,1,1,1}, {0,0,0,0}, {0,0,0,0}}},
         Shape{{{0,1,0,0}, {0,1,0,0}, {0,1,0,0}, {0,1,0,0}}},
         Shape{{{0,0,0,0}, {0,0,0,0}, {1,1,1,1}, {0,0,0,0}}},
         Shape{{{0,0,1,0}, {0,0,1,0}, {0,0,1,0}, {0,0,1,0}}}
     }},
-    // O Piece
+    // O Piece (ID: 2)
     std::array<Shape, 4>{{
         Shape{{{0,2,2,0}, {0,2,2,0}, {0,0,0,0}, {0,0,0,0}}},
         Shape{{{0,2,2,0}, {0,2,2,0}, {0,0,0,0}, {0,0,0,0}}},
         Shape{{{0,2,2,0}, {0,2,2,0}, {0,0,0,0}, {0,0,0,0}}},
         Shape{{{0,2,2,0}, {0,2,2,0}, {0,0,0,0}, {0,0,0,0}}}
     }},
-    // T Piece
+    // T Piece (ID: 3)
     std::array<Shape, 4>{{
         Shape{{{0,0,0,0}, {3,3,3,0}, {0,3,0,0}, {0,0,0,0}}},
         Shape{{{0,3,0,0}, {3,3,0,0}, {0,3,0,0}, {0,0,0,0}}},
         Shape{{{0,3,0,0}, {3,3,3,0}, {0,0,0,0}, {0,0,0,0}}},
         Shape{{{0,3,0,0}, {0,3,3,0}, {0,3,0,0}, {0,0,0,0}}}
     }},
-    // S Piece
+    // S Piece (ID: 4)
     std::array<Shape, 4>{{
         Shape{{{0,0,0,0}, {0,4,4,0}, {4,4,0,0}, {0,0,0,0}}},
         Shape{{{0,4,0,0}, {0,4,4,0}, {0,0,4,0}, {0,0,0,0}}},
         Shape{{{0,0,0,0}, {0,4,4,0}, {4,4,0,0}, {0,0,0,0}}},
         Shape{{{0,4,0,0}, {0,4,4,0}, {0,0,4,0}, {0,0,0,0}}}
     }},
-    // Z Piece
+    // Z Piece (ID: 5)
     std::array<Shape, 4>{{
         Shape{{{0,0,0,0}, {5,5,0,0}, {0,5,5,0}, {0,0,0,0}}},
         Shape{{{0,0,5,0}, {0,5,5,0}, {0,5,0,0}, {0,0,0,0}}},
         Shape{{{0,0,0,0}, {5,5,0,0}, {0,5,5,0}, {0,0,0,0}}},
         Shape{{{0,0,5,0}, {0,5,5,0}, {0,5,0,0}, {0,0,0,0}}}
     }},
-    // J Piece
+    // J Piece (ID: 6)
     std::array<Shape, 4>{{
         Shape{{{0,0,0,0}, {6,6,6,0}, {0,0,6,0}, {0,0,0,0}}},
         Shape{{{0,6,0,0}, {0,6,0,0}, {6,6,0,0}, {0,0,0,0}}},
         Shape{{{6,0,0,0}, {6,6,6,0}, {0,0,0,0}, {0,0,0,0}}},
         Shape{{{0,6,6,0}, {0,6,0,0}, {0,6,0,0}, {0,0,0,0}}}
     }},
-    // L Piece
+    // L Piece (ID: 7)
     std::array<Shape, 4>{{
         Shape{{{0,0,0,0}, {7,7,7,0}, {7,0,0,0}, {0,0,0,0}}},
         Shape{{{7,7,0,0}, {0,7,0,0}, {0,7,0,0}, {0,0,0,0}}},
@@ -176,24 +91,53 @@ const std::array<std::array<Shape, 4>, 7> TETROMINO_SHAPES = {{
     }}
 }};
 
-// --- Game Piece ---
+// --- Data Structures ---
 struct Piece {
-    int typeId;
-    int rotation;
-    int x;
-    int y;
+    int typeId = 0;
+    int rotation = 0;
+    int x = 0;
+    int y = 0;
 
     const Shape& GetShape() const {
         return TETROMINO_SHAPES[typeId - 1][rotation];
     }
 };
 
-// --- Board Class ---
-class Board {
+struct Move {
+    int rotation = 0;
+    int x = 0;
+    double score = 0.0;
+};
+
+struct HeuristicWeights {
+    double w_lines = 0.0;
+    double w_height = 0.0;
+    double w_holes = 0.0;
+    double w_bumpiness = 0.0;
+
+    static HeuristicWeights RandomWeights() {
+        return {
+            Random::Double(0.1, 1.0),
+            Random::Double(-1.0, -0.1),
+            Random::Double(-1.0, -0.1),
+            Random::Double(-1.0, -0.1)
+        };
+    }
+};
+
+// --- Board Engine (Pure Logic) ---
+class BoardEngine {
+private:
+    std::array<std::array<int, BOARD_WIDTH>, BOARD_HEIGHT> grid;
+
 public:
-    Board() {
+    BoardEngine() { Reset(); }
+
+    void Reset() {
         grid.fill({});
     }
+
+    const auto& GetGrid() const { return grid; }
 
     bool IsValid(const Piece& piece) const {
         const auto& shape = piece.GetShape();
@@ -254,108 +198,6 @@ public:
         return !IsValid(piece);
     }
 
-    // Modified render with piece preview and optional current piece
-    void Render(int score, int lines, int level, const Piece* currentPiece = nullptr, int nextPieceId = 0) const {
-        // Create a temporary grid with the current piece for rendering
-        auto tempGrid = grid;
-        
-        if (currentPiece && IsValid(*currentPiece)) {
-            const auto& shape = currentPiece->GetShape();
-            for (int r = 0; r < 4; ++r) {
-                for (int c = 0; c < 4; ++c) {
-                    if (shape[r][c] != 0) {
-                        int py = currentPiece->y + r;
-                        int px = currentPiece->x + c;
-                        if (py >= 0 && py < BOARD_HEIGHT && px >= 0 && px < BOARD_WIDTH) {
-                            tempGrid[py][px] = shape[r][c];
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!USE_FANCY_GRAPHICS) {
-            // ASCII-only rendering
-            std::cout << "+----------------------+      Next:\n";
-            for (int r = 0; r < BOARD_HEIGHT; ++r) {
-                std::cout << "|";
-                for (int c = 0; c < BOARD_WIDTH; ++c) {
-                    if (tempGrid[r][c] == 0) {
-                        std::cout << " .";
-                    } else {
-                        std::cout << " #";
-                    }
-                }
-                std::cout << " |";
-                
-                // Show next piece preview on the right
-                if (r >= 2 && r <= 5 && nextPieceId > 0) {
-                    const auto& nextShape = TETROMINO_SHAPES[nextPieceId - 1][0];
-                    int previewRow = r - 2;
-                    std::cout << "      ";
-                    for (int c = 0; c < 4; ++c) {
-                        if (nextShape[previewRow][c] != 0) {
-                            std::cout << "# ";
-                        } else {
-                            std::cout << "  ";
-                        }
-                    }
-                } else if (r == 1) {
-                    std::cout << "      ----";
-                } else if (r == 0) {
-                    std::cout << "      Next";
-                }
-                
-                // Show stats
-                if (r == 7) std::cout << "  Score: " << score;
-                if (r == 9) std::cout << "  Lines: " << lines;
-                if (r == 11) std::cout << "  Level: " << level;
-                std::cout << "\n";
-            }
-            std::cout << "+----------------------+\n";
-            return;
-        }
-
-        // Fancy Unicode rendering
-        std::cout << WALL_COLOR << "╔═════════════════════╗" << PREVIEW_COLOR << "     " << RESET_COLOR << "\n";
-        for (int r = 0; r < BOARD_HEIGHT; ++r) {
-            std::cout << WALL_COLOR << "║" << RESET_COLOR;
-            for (int c = 0; c < BOARD_WIDTH; ++c) {
-                if (tempGrid[r][c] == 0) {
-                    std::cout << EMPTY_COLOR << " ." << RESET_COLOR;
-                } else {
-                    std::cout << GetColor(tempGrid[r][c]) << " ■" << RESET_COLOR;
-                }
-            }
-            std::cout << WALL_COLOR << " ║" << RESET_COLOR;
-            
-            // Show next piece preview
-            if (r >= 2 && r <= 5 && nextPieceId > 0) {
-                const auto& nextShape = TETROMINO_SHAPES[nextPieceId - 1][0];
-                int previewRow = r - 2;
-                std::cout << PREVIEW_COLOR << "      " << RESET_COLOR;
-                for (int c = 0; c < 4; ++c) {
-                    if (nextShape[previewRow][c] != 0) {
-                        std::cout << GetColor(nextShape[previewRow][c]) << "■ " << RESET_COLOR;
-                    } else {
-                        std::cout << "  ";
-                    }
-                }
-            } else if (r == 1) {
-                std::cout << PREVIEW_COLOR << "      ────" << RESET_COLOR;
-            } else if (r == 0) {
-                std::cout << PREVIEW_COLOR << "      Next" << RESET_COLOR;
-            }
-            
-            // Show stats
-            if (r == 7) std::cout << "  Score: " << score;
-            if (r == 9) std::cout << "  Lines: " << lines;
-            if (r == 11) std::cout << "  Level: " << level;
-            std::cout << "\n";
-        }
-        std::cout << WALL_COLOR << "╚═════════════════════╝" << RESET_COLOR << "\n";
-    }
-
     int GetAggregateHeight() const {
         int total = 0;
         for (int c = 0; c < BOARD_WIDTH; ++c) {
@@ -398,89 +240,38 @@ public:
         return bump;
     }
 
-private:
-    std::array<std::array<int, BOARD_WIDTH>, BOARD_HEIGHT> grid;
-};
-
-// --- Heuristic Weights & Individual ---
-struct HeuristicWeights {
-    double w_lines = 0.0;
-    double w_height = 0.0;
-    double w_holes = 0.0;
-    double w_bumpiness = 0.0;
-
-    static HeuristicWeights RandomWeights() {
-        return {
-            Random::Double(0.1, 1.0),
-            Random::Double(-1.0, -0.1),
-            Random::Double(-1.0, -0.1),
-            Random::Double(-1.0, -0.1)
-        };
-    }
-
-    void Print() const {
-        std::cout << std::fixed << std::setprecision(4)
-                  << "Lines: " << w_lines
-                  << ", Height: " << w_height
-                  << ", Holes: " << w_holes
-                  << ", Bumpiness: " << w_bumpiness;
+    std::vector<int> Serialize() const {
+        std::vector<int> state;
+        state.reserve(BOARD_WIDTH * BOARD_HEIGHT);
+        for (int r = 0; r < BOARD_HEIGHT; ++r) {
+            for (int c = 0; c < BOARD_WIDTH; ++c) {
+                state.push_back(grid[r][c]);
+            }
+        }
+        return state;
     }
 };
 
-struct Individual {
-    HeuristicWeights weights;
-    double fitness = 0.0;
-    bool operator>(const Individual& other) const { return fitness > other.fitness; }
-};
-
-// --- File I/O Functions ---
-bool SaveWeights(const HeuristicWeights& w, const std::string& filename) {
-    std::ofstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error: Could not open file for writing: " << filename << std::endl;
-        return false;
-    }
-    file << std::fixed << std::setprecision(6);
-    file << w.w_lines << "\n";
-    file << w.w_height << "\n";
-    file << w.w_holes << "\n";
-    file << w.w_bumpiness << "\n";
-    bool success = file.good();
-    file.close();
-    return success;
-}
-
-bool LoadWeights(HeuristicWeights& w, const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        return false; // File doesn't exist, not necessarily an error
-    }
-    file >> w.w_lines;
-    file >> w.w_height;
-    file >> w.w_holes;
-    file >> w.w_bumpiness;
-    bool success = !file.fail();
-    file.close();
-    return success;
-}
-
-// --- AI & GA Functions ---
-Move FindBestMove(const Board& board, int pieceId, const HeuristicWeights& weights) {
+// --- AI Evaluation ---
+inline Move FindBestMove(const BoardEngine& board, int pieceId, const HeuristicWeights& weights) {
     Move best = {0, 0, std::numeric_limits<double>::lowest()};
     for (int r = 0; r < 4; ++r) {
         for (int x = -3; x < BOARD_WIDTH + 3; ++x) {
             int y = 0;
-            while (!board.IsValid({pieceId, r, x, y}) && y > -BOARD_HEIGHT) y--;
+            Piece testPiece{pieceId, r, x, y};
+            while (!board.IsValid(testPiece) && testPiece.y > -BOARD_HEIGHT) {
+                testPiece.y--;
+            }
+            if (testPiece.y <= -BOARD_HEIGHT) continue;
             
-            if (y <= -BOARD_HEIGHT) continue;
-            
-            while (board.IsValid({pieceId, r, x, y + 1})) y++;
-            
-            Piece piece{pieceId, r, x, y};
-            if (!board.IsValid(piece)) continue;
+            while (board.IsValid({pieceId, r, x, testPiece.y + 1})) {
+                testPiece.y++;
+            }
 
-            Board next = board;
-            next.PlacePiece(piece);
+            if (!board.IsValid(testPiece)) continue;
+
+            BoardEngine next = board;
+            next.PlacePiece(testPiece);
             int lines = next.ClearLines();
             int height = next.GetAggregateHeight();
             int holes = next.GetHoles();
@@ -499,166 +290,37 @@ Move FindBestMove(const Board& board, int pieceId, const HeuristicWeights& weigh
     return best;
 }
 
-double SimulateGame(const HeuristicWeights& weights) {
-    Board board;
-    int lines = 0, moves = 0;
-    int nextPiece = Random::Int(1, 7);
-    
-    while (moves < MAX_MOVES_PER_GAME) {
-        int currentPiece = nextPiece;
-        nextPiece = Random::Int(1, 7);
-        
-        Piece p{currentPiece, 0, 3, 0};
-        if (board.IsGameOver(p)) break;
-        
-        Move m = FindBestMove(board, currentPiece, weights);
-        p.rotation = m.rotation; p.x = m.x;
-        
-        int y = 0;
-        while (!board.IsValid({currentPiece, m.rotation, m.x, y})) y--;
-        p.y = y;
-        while (board.IsValid({currentPiece, m.rotation, m.x, p.y + 1})) p.y++;
-        
-        board.PlacePiece(p);
-        lines += board.ClearLines();
-        moves++;
+// --- C-Style API for WebAssembly ---
+extern "C" {
+    inline BoardEngine* Board_Create() { return new BoardEngine(); }
+    inline void Board_Destroy(BoardEngine* board) { delete board; }
+    inline void Board_Reset(BoardEngine* board) { board->Reset(); }
+    inline int Board_IsValid(BoardEngine* board, int type, int rot, int x, int y) {
+        return board->IsValid({type, rot, x, y}) ? 1 : 0;
     }
-    return static_cast<double>(lines);
-}
-
-Individual TournamentSelection(const std::vector<Individual>& pop) {
-    Individual best{{}, std::numeric_limits<double>::lowest()};
-    for (int i = 0; i < TOURNAMENT_SIZE; ++i) {
-        const auto& c = pop[Random::Int(0, pop.size()-1)];
-        if (c.fitness > best.fitness) best = c;
+    inline void Board_PlacePiece(BoardEngine* board, int type, int rot, int x, int y) {
+        board->PlacePiece({type, rot, x, y});
     }
-    return best;
-}
-
-HeuristicWeights Crossover(const HeuristicWeights& a, const HeuristicWeights& b) {
-    return {
-        (a.w_lines + b.w_lines) / 2.0,
-        (a.w_height + b.w_height) / 2.0,
-        (a.w_holes + b.w_holes) / 2.0,
-        (a.w_bumpiness + b.w_bumpiness) / 2.0
-    };
-}
-
-void Mutate(HeuristicWeights& w) {
-    if (Random::Double(0,1) < MUTATION_RATE) w.w_lines += Random::Normal(0, MUTATION_STRENGTH);
-    if (Random::Double(0,1) < MUTATION_RATE) w.w_height += Random::Normal(0, MUTATION_STRENGTH);
-    if (Random::Double(0,1) < MUTATION_RATE) w.w_holes += Random::Normal(0, MUTATION_STRENGTH);
-    if (Random::Double(0,1) < MUTATION_RATE) w.w_bumpiness += Random::Normal(0, MUTATION_STRENGTH);
-}
-
-HeuristicWeights RunGeneticAlgorithm() {
-    std::vector<Individual> pop(POPULATION_SIZE);
-    for (auto& ind : pop) ind.weights = HeuristicWeights::RandomWeights();
-
-    std::cout << "Starting Genetic Algorithm training...\n";
-    for (int gen = 0; gen < NUM_GENERATIONS; ++gen) {
-        for (auto& ind : pop) {
-            double f = 0;
-            for (int i = 0; i < NUM_GAMES_PER_FITNESS_TEST; ++i)
-                f += SimulateGame(ind.weights);
-            ind.fitness = f / NUM_GAMES_PER_FITNESS_TEST;
-        }
-
-        std::sort(pop.begin(), pop.end(), std::greater<Individual>());
-
-        std::vector<Individual> newPop;
-        int elite = POPULATION_SIZE * ELITISM_RATE;
-        for (int i = 0; i < elite; ++i) newPop.push_back(pop[i]);
-
-        while (newPop.size() < POPULATION_SIZE) {
-            auto p1 = TournamentSelection(pop);
-            auto p2 = TournamentSelection(pop);
-            HeuristicWeights child = Crossover(p1.weights, p2.weights);
-            Mutate(child);
-            newPop.push_back({child, 0.0});
-        }
-        pop = newPop;
-
-        std::cout << "Gen " << gen+1 << ": Best=" << pop[0].fitness << " ";
-        pop[0].weights.Print(); std::cout << "\n";
+    inline int Board_ClearLines(BoardEngine* board) { return board->ClearLines(); }
+    inline int Board_IsGameOver(BoardEngine* board, int type, int rot, int x, int y) {
+        return board->IsGameOver({type, rot, x, y}) ? 1 : 0;
     }
-    std::cout << "Training complete!\n";
-    return pop[0].weights;
-}
-
-void PlayVisibleGame(const HeuristicWeights& w) {
-    ClearScreen();
-    Board board;
-    int score = 0, lines = 0, level = 1;
-    int nextPieceId = Random::Int(1, 7);
-    bool over = false;
-
-    std::cout << "--- AI Playing Tetris ---\n";
-    
-    while (!over) {
-        int currentPieceId = nextPieceId;
-        nextPieceId = Random::Int(1, 7);
-        Piece p{currentPieceId, 0, 3, 0};
-        
-        if (board.IsGameOver(p)) { over = true; break; }
-        
-        // Show initial position (preview at top)
-        ClearScreen();
-        std::cout << "--- AI Playing ---\n";
-        board.Render(score, lines, level, &p, nextPieceId);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        
-        // Find best move
-        Move m = FindBestMove(board, currentPieceId, w);
-        p.rotation = m.rotation; p.x = m.x;
-        
-        // Find final y position
-        int y = 0;
-        while (!board.IsValid({currentPieceId, m.rotation, m.x, y})) y--;
-        int finalY = y;
-        while (board.IsValid({currentPieceId, m.rotation, m.x, finalY + 1})) finalY++;
-        
-        // Show hard drop animation (fast but visible)
-        for (int dropY = y; dropY <= finalY; ++dropY) {
-            p.y = dropY;
-            ClearScreen();
-            std::cout << "--- AI Playing ---\n";
-            board.Render(score, lines, level, &p, nextPieceId);
-            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    inline int Board_GetAggregateHeight(BoardEngine* board) { return board->GetAggregateHeight(); }
+    inline int Board_GetHoles(BoardEngine* board) { return board->GetHoles(); }
+    inline int Board_GetBumpiness(BoardEngine* board) { return board->GetBumpiness(); }
+    inline void Board_GetGrid(BoardEngine* board, int* outArray) {
+        const auto& grid = board->GetGrid();
+        for (int r = 0; r < BOARD_HEIGHT; ++r) {
+            for (int c = 0; c < BOARD_WIDTH; ++c) {
+                outArray[r * BOARD_WIDTH + c] = grid[r][c];
+            }
         }
-        
-        p.y = finalY;
-        board.PlacePiece(p);
-        int cleared = board.ClearLines();
-        if (cleared) {
-            lines += cleared;
-            score += cleared * cleared * 100 * level;
-            level = 1 + (lines / 10);
-        }
-        
-        // Show final placement briefly
-        ClearScreen();
-        std::cout << "--- AI Playing ---\n";
-        board.Render(score, lines, level, nullptr, nextPieceId);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
-    ClearScreen();
-    std::cout << "--- GAME OVER ---\nFinal Score: " << score << "\nFinal Lines: " << lines << "\n";
+    inline Move Board_FindBestMove(BoardEngine* board, int pieceId, const HeuristicWeights* weights) {
+        return FindBestMove(*board, pieceId, *weights);
+    }
 }
 
-// --- Command Line Interface ---
-void PrintUsage(const char* programName) {
-    std::cout << "Tetris AI Genetic Algorithm Solver\n\n"
-              << "Usage: " << programName << " [options]\n\n"
-              << "Options:\n"
-              << "  --train          Train a new model and save to file\n"
-              << "  --play           Load model from file and play (no training)\n"
-              << "  --file <path>    Specify weights file (default: tetris_weights.txt)\n"
-              << "  --help           Show this help message\n\n"
-              << "Examples:\n"
-              << "  " << programName << "              # Train if needed, then play\n"
-              << "  " << programName << " --train      # Train and save only\n"
-              << "  " << programName << " --play       # Load and play only\n"
-              << "  " << programName << " --play --file my_weights.txt\n";
-}
+} // namespace TetrisEngine
 
+#endif // TETRIS_ENGINE_H

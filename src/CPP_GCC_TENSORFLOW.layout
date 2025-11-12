@@ -19,7 +19,7 @@ CursorRow=5
 TopLine=1
 LeftChar=1
 [Editors]
-Order=
+Order=34,46,45
 Focused=45
 [Editor_4]
 CursorCol=2
@@ -162,9 +162,9 @@ CursorRow=1
 TopLine=1
 LeftChar=1
 [Editor_34]
-CursorCol=17
-CursorRow=726
-TopLine=1
+CursorCol=1
+CursorRow=752
+TopLine=726
 LeftChar=1
 [Editor_42]
 CursorCol=72
@@ -202,8 +202,8 @@ CursorRow=1
 TopLine=4
 LeftChar=1
 [Editor_45]
-CursorCol=11
-CursorRow=10
+CursorCol=1
+CursorRow=424
 TopLine=1
 LeftChar=1
 [Editor_47]
@@ -213,6 +213,6 @@ TopLine=640
 LeftChar=1
 [Editor_46]
 CursorCol=1
-CursorRow=665
-TopLine=639
+CursorRow=1
+TopLine=300
 LeftChar=1
