@@ -6,16 +6,9 @@ g++ -std=c++20 -O3 -o tetris_ga_solver tetris_ga_solver.cpp
 
 [ask to fix to : kimi.com]
 
--- [_] compiles but does nothing
+-- [_] 
 
 
-*/
-
-/*
-SELF PLAYING TETRIS WITH GENETIC ALGORITHM SOLVER
-
-Compile with:
-g++ -std=c++20 -O3 -o tetris_ga_solver tetris_ga_solver.cpp
 */
 
 #include <iostream>
@@ -31,6 +24,8 @@ g++ -std=c++20 -O3 -o tetris_ga_solver tetris_ga_solver.cpp
 #include <limits>
 #include <iomanip>
 #include <locale>
+#include <fstream>
+#include <sstream>
 
 // For Windows ANSI support
 #ifdef _WIN32
@@ -52,6 +47,9 @@ constexpr double ELITISM_RATE = 0.1;
 
 // Set to false for ASCII-only mode (maximum compatibility)
 constexpr bool USE_FANCY_GRAPHICS = true;
+
+// Default file to save/load weights
+const std::string DEFAULT_WEIGHTS_FILE = "tetris_weights.txt";
 
 // --- Console Setup ---
 void SetupConsole() {
@@ -387,6 +385,37 @@ struct Individual {
     bool operator>(const Individual& other) const { return fitness > other.fitness; }
 };
 
+// --- File I/O Functions ---
+bool SaveWeights(const HeuristicWeights& w, const std::string& filename) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file for writing: " << filename << std::endl;
+        return false;
+    }
+    file << std::fixed << std::setprecision(6);
+    file << w.w_lines << "\n";
+    file << w.w_height << "\n";
+    file << w.w_holes << "\n";
+    file << w.w_bumpiness << "\n";
+    bool success = file.good();
+    file.close();
+    return success;
+}
+
+bool LoadWeights(HeuristicWeights& w, const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        return false; // File doesn't exist, not necessarily an error
+    }
+    file >> w.w_lines;
+    file >> w.w_height;
+    file >> w.w_holes;
+    file >> w.w_bumpiness;
+    bool success = !file.fail();
+    file.close();
+    return success;
+}
+
 // --- AI & GA Functions ---
 Move FindBestMove(const Board& board, int pieceId, const HeuristicWeights& weights) {
     Move best = {0, 0, std::numeric_limits<double>::lowest()};
@@ -535,14 +564,97 @@ void PlayVisibleGame(const HeuristicWeights& w) {
     std::cout << "--- GAME OVER ---\nFinal Score: " << score << "\nFinal Lines: " << lines << "\n";
 }
 
-int main() {
-    SetupConsole();  // Must be called first!
+// --- Command Line Interface ---
+void PrintUsage(const char* programName) {
+    std::cout << "Tetris AI Genetic Algorithm Solver\n\n"
+              << "Usage: " << programName << " [options]\n\n"
+              << "Options:\n"
+              << "  --train          Train a new model and save to file\n"
+              << "  --play           Load model from file and play (no training)\n"
+              << "  --file <path>    Specify weights file (default: tetris_weights.txt)\n"
+              << "  --help           Show this help message\n\n"
+              << "Examples:\n"
+              << "  " << programName << "              # Train if needed, then play\n"
+              << "  " << programName << " --train      # Train and save only\n"
+              << "  " << programName << " --play       # Load and play only\n"
+              << "  " << programName << " --play --file my_weights.txt\n";
+}
+
+int main(int argc, char* argv[]) {
+    SetupConsole();
     
-    std::cout << "Tetris AI Genetic Algorithm Solver\n";
-    HeuristicWeights best = RunGeneticAlgorithm();
-    std::cout << "\nBest weights found: ";
-    best.Print();
-    std::cout << "\n\nStarting visual demonstration...\n";
-    PlayVisibleGame(best);
+    std::string filename = DEFAULT_WEIGHTS_FILE;
+    bool trainMode = false;
+    bool playMode = false;
+    
+    // Parse command-line arguments
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--train") {
+            trainMode = true;
+        } else if (arg == "--play") {
+            playMode = true;
+        } else if (arg == "--file" && i + 1 < argc) {
+            filename = argv[++i];
+        } else if (arg == "--help") {
+            PrintUsage(argv[0]);
+            return 0;
+        } else {
+            std::cerr << "Unknown option: " << arg << "\n";
+            PrintUsage(argv[0]);
+            return 1;
+        }
+    }
+    
+    HeuristicWeights best;
+    
+    // Handle different modes
+    if (playMode && trainMode) {
+        std::cerr << "Error: Cannot use both --train and --play simultaneously.\n";
+        return 1;
+    }
+    
+    if (playMode) {
+        // Load and play only
+        std::cout << "Loading model from " << filename << "...\n";
+        if (!LoadWeights(best, filename)) {
+            std::cerr << "Error: Could not load weights from " << filename << "\n";
+            std::cerr << "Run with --train first to create the file.\n";
+            return 1;
+        }
+        std::cout << "Model loaded: ";
+        best.Print();
+        std::cout << "\n\nStarting visual demonstration...\n";
+        PlayVisibleGame(best);
+    } else if (trainMode) {
+        // Train and save only
+        std::cout << "Training new model...\n";
+        best = RunGeneticAlgorithm();
+        if (SaveWeights(best, filename)) {
+            std::cout << "\nModel saved successfully to " << filename << std::endl;
+        } else {
+            std::cerr << "Error: Failed to save model to " << filename << std::endl;
+            return 1;
+        }
+    } else {
+        // Default: train if needed, then play
+        if (LoadWeights(best, filename)) {
+            std::cout << "Found existing model in " << filename << ": ";
+            best.Print();
+            std::cout << "\n\nStarting visual demonstration...\n";
+            PlayVisibleGame(best);
+        } else {
+            std::cout << "No saved model found. Training new model...\n";
+            best = RunGeneticAlgorithm();
+            if (SaveWeights(best, filename)) {
+                std::cout << "\nModel saved to " << filename << "\n";
+            } else {
+                std::cerr << "Warning: Failed to save model to " << filename << "\n";
+            }
+            std::cout << "\nStarting visual demonstration...\n";
+            PlayVisibleGame(best);
+        }
+    }
+    
     return 0;
 }
