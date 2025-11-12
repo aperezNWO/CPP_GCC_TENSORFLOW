@@ -6,6 +6,7 @@
 #include <tensorflow/c/c_api.h>
 #include "Algorithm.h"
 #include "tictactoe.h"
+#include "TetrisEngine.h"
 
 #define DLL_EXPORT extern "C" __declspec(dllexport) __stdcall
 

@@ -93,3 +93,32 @@ DLL_EXPORT bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result, int 
         return false;
     }
 }
+//
+DLL_EXPORT void* Tetris_CreateGame() {
+    return new TetrisEngine::TetrisGameInstance();
+}
+
+DLL_EXPORT void Tetris_DestroyGame(void* game) {
+    delete static_cast<TetrisEngine::TetrisGameInstance*>(game);
+}
+
+DLL_EXPORT void Tetris_GetBoardState(void* game, int* board, int* score, int* lines, int* level, int* nextPiece, bool* gameOver) {
+    auto* g = static_cast<TetrisEngine::TetrisGameInstance*>(game);
+    g->GetState(board, score, lines, level, nextPiece);
+    *gameOver = g->gameOver;
+}
+
+DLL_EXPORT void Tetris_StepAI(void* game) {
+    static_cast<TetrisEngine::TetrisGameInstance*>(game)->StepAI();
+}
+
+DLL_EXPORT void Tetris_ResetGame(void* game) {
+    static_cast<TetrisEngine::TetrisGameInstance*>(game)->Reset();
+}
+
+DLL_EXPORT bool Tetris_LoadModel(void* game, const char* filename) {
+    return static_cast<TetrisEngine::TetrisGameInstance*>(game)->LoadModel(filename);
+}
+    
+	
+

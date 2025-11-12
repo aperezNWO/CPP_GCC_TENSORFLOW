@@ -6,7 +6,8 @@ Compile from root with:
 g++ -std=c++20  -o __test/TetrisBoard.exe  _tetris/TetrisBoard.cpp
 
 */
-#include "TetrisEngine.h"
+
+#include "../include/TetrisEngine.h"
 #include <iostream>
 #include <vector>
 #include <string>
