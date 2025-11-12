@@ -1,362 +1,610 @@
 /*
+SELF PLAYING TETRIS WITH GENETIC ALGORITHM SOLVER
 
-SELF PLAYING TIC TAC TOE.
+Compile with:
+g++ -std=c++20 -O3 -o tetris_ga_solver tetris_ga_solver.cpp
 
-g++ -std=c++17 -o tetris.exe tetris.cpp -mconsole
+[ask to fix to : kimi.com]
 
 */
+
 #include <iostream>
 #include <vector>
-#include <windows.h>
-#include <ctime>
+#include <string>
+#include <array>
+#include <random>
+#include <chrono>
+#include <thread>
 #include <algorithm>
 #include <cmath>
+#include <numeric>
+#include <limits>
+#include <iomanip>
 
-using namespace std;
+// --- Global Constants ---
+constexpr int BOARD_WIDTH = 10;
+constexpr int BOARD_HEIGHT = 20;
 
-// === Constantes ===
-const int BOARD_WIDTH = 10;
-const int BOARD_HEIGHT = 20;
-const char EMPTY_CELL = ' ';
+constexpr int POPULATION_SIZE = 50;
+constexpr int NUM_GENERATIONS = 20;
+constexpr int NUM_GAMES_PER_FITNESS_TEST = 1;
+constexpr int MAX_MOVES_PER_GAME = 500;
+constexpr double MUTATION_RATE = 0.1;
+constexpr double MUTATION_STRENGTH = 0.5;
+constexpr int TOURNAMENT_SIZE = 5;
+constexpr double ELITISM_RATE = 0.1;
 
-// === Formas de Tetrominós ===
-vector<vector<vector<vector<int>>>> TETROMINOES = {
-    // I
-    {{{0,0,0,0},
-      {1,1,1,1},
-      {0,0,0,0},
-      {0,0,0,0}}},
+// --- Random Number Generation ---
+namespace Random {
+    std::mt19937 generator(std::random_device{}());
 
-    // O
-    {{{1,1},
-      {1,1}}},
+    int Int(int min, int max) {
+        std::uniform_int_distribution<int> dist(min, max);
+        return dist(generator);
+    }
 
-    // T
-    {{{0,1,0},
-      {1,1,1},
-      {0,0,0}}},
+    double Double(double min, double max) {
+        std::uniform_real_distribution<double> dist(min, max);
+        return dist(generator);
+    }
 
-    // S
-    {{{0,1,1},
-      {1,1,0},
-      {0,0,0}}},
+    double Normal(double mean, double stddev) {
+        std::normal_distribution<double> dist(mean, stddev);
+        return dist(generator);
+    }
+}
 
-    // Z
-    {{{1,1,0},
-      {0,1,1},
-      {0,0,0}}},
+// --- ANSI Colors ---
+const std::string RESET_COLOR = "\033[0m";
+const std::string EMPTY_COLOR = "\033[1;30m";
+const std::string I_COLOR = "\033[1;36m";   // Cyan
+const std::string O_COLOR = "\033[1;33m";   // Yellow
+const std::string T_COLOR = "\033[1;35m";   // Magenta
+const std::string S_COLOR = "\033[1;32m";   // Green
+const std::string Z_COLOR = "\033[1;31m";   // Red
+const std::string J_COLOR = "\033[1;34m";   // Blue
+const std::string L_COLOR = "\033[1;91m";   // Bright Red
+const std::string WALL_COLOR = "\033[1;37m";
 
-    // J
-    {{{1,0,0},
-      {1,1,1},
-      {0,0,0}}},
+std::string GetColor(int pieceId) {
+    switch (pieceId) {
+        case 0: return EMPTY_COLOR;
+        case 1: return I_COLOR;
+        case 2: return O_COLOR;
+        case 3: return T_COLOR;
+        case 4: return S_COLOR;
+        case 5: return Z_COLOR;
+        case 6: return J_COLOR;
+        case 7: return L_COLOR;
+        default: return RESET_COLOR;
+    }
+}
 
-    // L
-    {{{0,0,1},
-      {1,1,1},
-      {0,0,0}}}
+void ClearScreen() {
+    std::cout << "\033[2J\033[1;1H";
+}
+
+// Define the Shape type
+using Shape = std::array<std::array<int, 4>, 4>;
+
+const std::array<std::array<Shape, 4>, 7> TETROMINO_SHAPES = {
+    // I Piece
+    {
+        {
+            {0, 0, 0, 0},
+            {1, 1, 1, 1},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 0, 0}
+        },
+        {
+            {0, 0, 0, 0},
+            {0, 0, 0, 0},
+            {1, 1, 1, 1},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 1, 0},
+            {0, 0, 1, 0},
+            {0, 0, 1, 0},
+            {0, 0, 1, 0}
+        }
+    },
+    // O Piece
+    {
+        {
+            {0, 2, 2, 0},
+            {0, 2, 2, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 2, 2, 0},
+            {0, 2, 2, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 2, 2, 0},
+            {0, 2, 2, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 2, 2, 0},
+            {0, 2, 2, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        }
+    },
+    // T Piece
+    {
+        {
+            {0, 0, 0, 0},
+            {3, 3, 3, 0},
+            {0, 3, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 3, 0, 0},
+            {3, 3, 0, 0},
+            {0, 3, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 3, 0, 0},
+            {3, 3, 3, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 3, 0, 0},
+            {0, 3, 3, 0},
+            {0, 3, 0, 0},
+            {0, 0, 0, 0}
+        }
+    },
+    // S Piece
+    {
+        {
+            {0, 0, 0, 0},
+            {0, 4, 4, 0},
+            {4, 4, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 4, 0, 0},
+            {0, 4, 4, 0},
+            {0, 0, 4, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0},
+            {0, 0, 4, 4},
+            {0, 4, 4, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 4, 0, 0},
+            {0, 4, 4, 0},
+            {0, 0, 4, 0},
+            {0, 0, 0, 0}
+        }
+    },
+    // Z Piece
+    {
+        {
+            {0, 0, 0, 0},
+            {5, 5, 0, 0},
+            {0, 5, 5, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 5, 0},
+            {0, 5, 5, 0},
+            {0, 5, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 0, 0},
+            {0, 5, 5, 0},
+            {0, 0, 5, 5},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 5, 0},
+            {0, 5, 5, 0},
+            {0, 5, 0, 0},
+            {0, 0, 0, 0}
+        }
+    },
+    // J Piece
+    {
+        {
+            {0, 0, 0, 0},
+            {6, 6, 6, 0},
+            {0, 0, 6, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 6, 0, 0},
+            {0, 6, 0, 0},
+            {6, 6, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {6, 0, 0, 0},
+            {6, 6, 6, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 6, 6, 0},
+            {0, 6, 0, 0},
+            {0, 6, 0, 0},
+            {0, 0, 0, 0}
+        }
+    },
+    // L Piece
+    {
+        {
+            {0, 0, 0, 0},
+            {7, 7, 7, 0},
+            {7, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {7, 7, 0, 0},
+            {0, 7, 0, 0},
+            {0, 7, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 0, 7, 0},
+            {7, 7, 7, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {
+            {0, 7, 0, 0},
+            {0, 7, 0, 0},
+            {0, 7, 7, 0},
+            {0, 0, 0, 0}
+        }
+    }
 };
 
-// === Colores de consola para cada pieza ===
-const int COLORS[] = {9, 14, 13, 10, 12, 1, 6}; // Azul, Amarillo, Magenta, Verde, Rojo, Azul oscuro, Cyan
-
-// === Tablero del juego ===
-vector<vector<char>> board(BOARD_HEIGHT, vector<char>(BOARD_WIDTH, EMPTY_CELL));
-vector<vector<int>> colorBoard(BOARD_HEIGHT, vector<int>(BOARD_WIDTH, 7)); // 7 = blanco
-
-// === Pieza actual ===
+// --- Game Piece ---
 struct Piece {
-    int x, y;           // posición
-    int type;           // tipo de pieza (0-6)
-    int rotation;       // rotación actual
+    int typeId;
+    int rotation;
+    int x;
+    int y;
+
+    const Shape& GetShape() const {
+        return TETROMINO_SHAPES[typeId - 1][rotation];
+    }
 };
 
-Piece currentPiece = {-1, -1, -1, -1};
-bool gameOver = false;
-int score = 0;
-
-// === Dibujar el tablero con colores ===
-void drawBoard() {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD coord = {0, 0};
-    SetConsoleCursorPosition(hConsole, coord);
-
-    // Borde superior
-    cout << string(BOARD_WIDTH * 2 + 2, '-') << '\n';
-
-    for (int y = 0; y < BOARD_HEIGHT; ++y) {
-        cout << '|';
-        for (int x = 0; x < BOARD_WIDTH; ++x) {
-            SetConsoleTextAttribute(hConsole, colorBoard[y][x]);
-            cout << board[y][x] << ' ';
-        }
-        SetConsoleTextAttribute(hConsole, 7); // Restaurar blanco
-        cout << '|' << '\n';
+// --- Board Class ---
+class Board {
+public:
+    Board() {
+        grid.fill({});
     }
 
-    cout << string(BOARD_WIDTH * 2 + 2, '-') << '\n';
-    cout << "Puntuación: " << score << "\n";
-    if (gameOver) {
-        cout << "¡FIN DEL JUEGO!\n";
-    }
-}
-
-// === Verificar colisión ===
-bool checkCollision(int px, int py, const vector<vector<int>>& shape) {
-    for (size_t y = 0; y < shape.size(); ++y) {
-        for (size_t x = 0; x < shape[y].size(); ++x) {
-            if (shape[y][x]) {
-                int nx = px + static_cast<int>(x);
-                int ny = py + static_cast<int>(y);
-
-                if (nx < 0 || nx >= BOARD_WIDTH || ny >= BOARD_HEIGHT) {
-                    return true;
-                }
-                if (ny >= 0 && board[ny][nx] != EMPTY_CELL) {
-                    return true;
+    bool IsValid(const Piece& piece) const {
+        const auto& shape = piece.GetShape();
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                if (shape[r][c] != 0) {
+                    int boardX = piece.x + c;
+                    int boardY = piece.y + r;
+                    if (boardX < 0 || boardX >= BOARD_WIDTH || boardY < 0 || boardY >= BOARD_HEIGHT)
+                        return false;
+                    if (boardY >= 0 && grid[boardY][boardX] != 0)
+                        return false;
                 }
             }
         }
-    }
-    return false;
-}
-
-// === Fijar la pieza en el tablero ===
-void lockPiece() {
-    if (currentPiece.type < 0 || currentPiece.type >= 7) return;
-
-    const auto& rotations = TETROMINOES[currentPiece.type];
-    if (rotations.empty()) return;
-    if (static_cast<size_t>(currentPiece.rotation) >= rotations.size()) return;
-
-    const auto& shape = rotations[currentPiece.rotation];
-    int color = COLORS[currentPiece.type];
-
-    for (size_t y = 0; y < shape.size(); ++y) {
-        for (size_t x = 0; x < shape[y].size(); ++x) {
-            if (shape[y][x]) {
-                int bx = currentPiece.x + static_cast<int>(x);
-                int by = currentPiece.y + static_cast<int>(y);
-                if (by >= 0 && by < BOARD_HEIGHT && bx >= 0 && bx < BOARD_WIDTH) {
-                    board[by][bx] = '#';
-                    colorBoard[by][bx] = color;
-                }
-            }
-        }
-    }
-}
-
-// === Limpiar líneas completas ===
-void clearLines() {
-    int linesCleared = 0;
-    for (int y = BOARD_HEIGHT - 1; y >= 0; --y) {
-        bool full = true;
-        for (int x = 0; x < BOARD_WIDTH; ++x) {
-            if (board[y][x] == EMPTY_CELL) {
-                full = false;
-                break;
-            }
-        }
-
-        if (full) {
-            ++linesCleared;
-            for (int yy = y; yy > 0; --yy) {
-                board[yy] = board[yy - 1];
-                colorBoard[yy] = colorBoard[yy - 1];
-            }
-            fill(board[0].begin(), board[0].end(), EMPTY_CELL);
-            fill(colorBoard[0].begin(), colorBoard[0].end(), 7);
-            ++y; // Revisar la misma fila nuevamente
-        }
+        return true;
     }
 
-    if (linesCleared > 0) {
-        score += (linesCleared == 1 ? 100 : linesCleared == 2 ? 300 : linesCleared == 3 ? 500 : 800);
-    }
-}
-
-// === Generar nueva pieza ===
-void spawnPiece() {
-    int type = rand() % 7;
-    currentPiece = { BOARD_WIDTH / 2 - 1, 0, type, 0 };
-
-    if (type < 0 || type >= 7 || TETROMINOES[type].empty()) {
-        gameOver = true;
-        return;
-    }
-
-    if (checkCollision(currentPiece.x, currentPiece.y, TETROMINOES[type][0])) {
-        gameOver = true;
-    }
-}
-
-// === Renderizar o eliminar temporalmente la pieza ===
-void renderPiece(bool place) {
-    if (currentPiece.type < 0 || currentPiece.type >= 7) return;
-
-    const auto& rotations = TETROMINOES[currentPiece.type];
-    if (rotations.empty()) return;
-    if (static_cast<size_t>(currentPiece.rotation) >= rotations.size()) return;
-
-    const auto& shape = rotations[currentPiece.rotation];
-    int color = place ? COLORS[currentPiece.type] : 7;
-
-    for (size_t y = 0; y < shape.size(); ++y) {
-        for (size_t x = 0; x < shape[y].size(); ++x) {
-            if (shape[y][x]) {
-                int bx = currentPiece.x + static_cast<int>(x);
-                int by = currentPiece.y + static_cast<int>(y);
-                if (by >= 0 && by < BOARD_HEIGHT && bx >= 0 && bx < BOARD_WIDTH) {
-                    board[by][bx] = place ? '#' : EMPTY_CELL;
-                    colorBoard[by][bx] = color;
-                }
-            }
-        }
-    }
-}
-
-// === Evaluar calidad del tablero (heurística) ===
-double evaluateBoard() {
-    vector<int> heights(BOARD_WIDTH, 0);
-    int totalHeight = 0;
-    int holes = 0;
-    int bumpiness = 0;
-
-    // Calcular altura de cada columna
-    for (int x = 0; x < BOARD_WIDTH; ++x) {
-        for (int y = 0; y < BOARD_HEIGHT; ++y) {
-            if (board[y][x] != EMPTY_CELL) {
-                heights[x] = BOARD_HEIGHT - y;
-                break;
-            }
-        }
-    }
-
-    // Altura total
-    for (int h : heights) totalHeight += h;
-
-    // Contar agujeros
-    for (int x = 0; x < BOARD_WIDTH; ++x) {
-        bool blockFound = false;
-        for (int y = 0; y < BOARD_HEIGHT; ++y) {
-            if (blockFound && board[y][x] == EMPTY_CELL) holes++;
-            if (board[y][x] != EMPTY_CELL) blockFound = true;
-        }
-    }
-
-    // Desigualdad entre columnas adyacentes
-    for (int i = 0; i < BOARD_WIDTH - 1; ++i) {
-        bumpiness += abs(heights[i] - heights[i+1]);
-    }
-
-    // Heurística ajustada (valores clásicos de literatura)
-    return -0.51 * totalHeight - 0.76 * holes - 0.36 * bumpiness;
-}
-
-// === Encontrar mejor movimiento posible ===
-Piece findBestMove() {
-    double bestScore = -1e9;
-    Piece bestPiece = currentPiece;
-    Piece original = currentPiece;
-
-    for (int rot = 0; rot < 4; ++rot) {
-        for (int offsetX = -5; offsetX <= 5; ++offsetX) {
-            currentPiece = original;
-            currentPiece.rotation = rot % TETROMINOES[currentPiece.type].size();
-            currentPiece.x += offsetX;
-
-            // Simular caída hasta el fondo
-            while (!checkCollision(currentPiece.x, currentPiece.y + 1, TETROMINOES[currentPiece.type][currentPiece.rotation])) {
-                currentPiece.y++;
-            }
-
-            // Si es un movimiento válido, evaluarlo
-            if (!checkCollision(currentPiece.x, currentPiece.y, TETROMINOES[currentPiece.type][currentPiece.rotation])) {
-                renderPiece(true);
-                double score = evaluateBoard();
-                renderPiece(false);
-
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestPiece = currentPiece;
+    void PlacePiece(const Piece& piece) {
+        const auto& shape = piece.GetShape();
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                if (shape[r][c] != 0) {
+                    int py = piece.y + r;
+                    int px = piece.x + c;
+                    if (py >= 0 && py < BOARD_HEIGHT && px >= 0 && px < BOARD_WIDTH) {
+                        grid[py][px] = piece.typeId;
+                    }
                 }
             }
         }
     }
 
-    return bestPiece;
+    int ClearLines() {
+        int lines = 0;
+        for (int r = BOARD_HEIGHT - 1; r >= 0; ) {
+            bool full = true;
+            for (int c = 0; c < BOARD_WIDTH; ++c) {
+                if (grid[r][c] == 0) {
+                    full = false;
+                    break;
+                }
+            }
+            if (full) {
+                lines++;
+                for (int rr = r; rr > 0; --rr) {
+                    grid[rr] = grid[rr - 1];
+                }
+                grid[0].fill(0);
+            } else {
+                --r;
+            }
+        }
+        return lines;
+    }
+
+    bool IsGameOver(const Piece& piece) const {
+        return !IsValid(piece);
+    }
+
+    void Render(int score, int lines, int level) const {
+        std::cout << WALL_COLOR << "╔══════════════════════╗" << RESET_COLOR << "\n";
+        for (int r = 0; r < BOARD_HEIGHT; ++r) {
+            std::cout << WALL_COLOR << "║" << RESET_COLOR;
+            for (int c = 0; c < BOARD_WIDTH; ++c) {
+                if (grid[r][c] == 0) {
+                    std::cout << EMPTY_COLOR << " ." << RESET_COLOR;
+                } else {
+                    std::cout << GetColor(grid[r][c]) << " ■" << RESET_COLOR;
+                }
+            }
+            std::cout << WALL_COLOR << " ║" << RESET_COLOR;
+            if (r == 2) std::cout << "  Score: " << score;
+            if (r == 4) std::cout << "  Lines: " << lines;
+            if (r == 6) std::cout << "  Level: " << level;
+            std::cout << "\n";
+        }
+        std::cout << WALL_COLOR << "╚══════════════════════╝" << RESET_COLOR << "\n";
+    }
+
+    int GetAggregateHeight() const {
+        int total = 0;
+        for (int c = 0; c < BOARD_WIDTH; ++c) {
+            for (int r = 0; r < BOARD_HEIGHT; ++r) {
+                if (grid[r][c] != 0) {
+                    total += BOARD_HEIGHT - r;
+                    break;
+                }
+            }
+        }
+        return total;
+    }
+
+    int GetHoles() const {
+        int holes = 0;
+        for (int c = 0; c < BOARD_WIDTH; ++c) {
+            bool block = false;
+            for (int r = 0; r < BOARD_HEIGHT; ++r) {
+                if (grid[r][c] != 0) block = true;
+                else if (block) holes++;
+            }
+        }
+        return holes;
+    }
+
+    int GetBumpiness() const {
+        int heights[BOARD_WIDTH] = {};
+        for (int c = 0; c < BOARD_WIDTH; ++c) {
+            for (int r = 0; r < BOARD_HEIGHT; ++r) {
+                if (grid[r][c] != 0) {
+                    heights[c] = BOARD_HEIGHT - r;
+                    break;
+                }
+            }
+        }
+        int bump = 0;
+        for (int i = 0; i < BOARD_WIDTH - 1; ++i) {
+            bump += std::abs(heights[i] - heights[i+1]);
+        }
+        return bump;
+    }
+
+private:
+    std::array<std::array<int, BOARD_WIDTH>, BOARD_HEIGHT> grid;
+};
+
+// --- Heuristic Weights & Individual ---
+struct HeuristicWeights {
+    double w_lines = 0.0;
+    double w_height = 0.0;
+    double w_holes = 0.0;
+    double w_bumpiness = 0.0;
+
+    static HeuristicWeights RandomWeights() {
+        return {
+            Random::Double(0.1, 1.0),
+            Random::Double(-1.0, -0.1),
+            Random::Double(-1.0, -0.1),
+            Random::Double(-1.0, -0.1)
+        };
+    }
+
+    void Print() const {
+        std::cout << std::fixed << std::setprecision(4)
+                  << "Lines: " << w_lines
+                  << ", Height: " << w_height
+                  << ", Holes: " << w_holes
+                  << ", Bumpiness: " << w_bumpiness;
+    }
+};
+
+struct Individual {
+    HeuristicWeights weights;
+    double fitness = 0.0;
+    bool operator>(const Individual& other) const { return fitness > other.fitness; }
+};
+
+struct Move {
+    int rotation = 0;
+    int x = 0;
+    double score = 0.0;
+};
+
+// --- AI & GA Functions ---
+Move FindBestMove(const Board& board, int pieceId, const HeuristicWeights& weights) {
+    Move best = {0, 0, std::numeric_limits<double>::lowest()};
+    for (int r = 0; r < 4; ++r) {
+        for (int x = -3; x < BOARD_WIDTH + 3; ++x) {
+            Piece piece{pieceId, r, x, 0};
+            int y = 0;
+            while (!board.IsValid({pieceId, r, x, y})) y--;
+            piece.y = y;
+            while (board.IsValid({pieceId, r, x, y + 1})) y++;
+            piece.y = y;
+            if (!board.IsValid(piece)) continue;
+
+            Board next = board;
+            next.PlacePiece(piece);
+            int lines = next.ClearLines();
+            int height = next.GetAggregateHeight();
+            int holes = next.GetHoles();
+            int bump = next.GetBumpiness();
+
+            double score = lines * lines * weights.w_lines +
+                          height * weights.w_height +
+                          holes * weights.w_holes +
+                          bump * weights.w_bumpiness;
+
+            if (score > best.score) {
+                best = {r, x, score};
+            }
+        }
+    }
+    return best;
 }
 
-// === Función principal ===
+double SimulateGame(const HeuristicWeights& weights) {
+    Board board;
+    int lines = 0, moves = 0;
+    while (moves < MAX_MOVES_PER_GAME) {
+        int id = Random::Int(1, 7);
+        Piece p{id, 0, 3, 0};
+        if (board.IsGameOver(p)) break;
+        Move m = FindBestMove(board, id, weights);
+        p.rotation = m.rotation; p.x = m.x;
+        int y = 0;
+        while (!board.IsValid({id, m.rotation, m.x, y})) y--;
+        p.y = y;
+        while (board.IsValid({id, m.rotation, m.x, p.y + 1})) p.y++;
+        board.PlacePiece(p);
+        lines += board.ClearLines();
+        moves++;
+    }
+    return static_cast<double>(lines);
+}
+
+Individual TournamentSelection(const std::vector<Individual>& pop) {
+    Individual best{{}, std::numeric_limits<double>::lowest()};
+    for (int i = 0; i < TOURNAMENT_SIZE; ++i) {
+        const auto& c = pop[Random::Int(0, pop.size()-1)];
+        if (c.fitness > best.fitness) best = c;
+    }
+    return best;
+}
+
+HeuristicWeights Crossover(const HeuristicWeights& a, const HeuristicWeights& b) {
+    return {
+        (a.w_lines + b.w_lines) / 2.0,
+        (a.w_height + b.w_height) / 2.0,
+        (a.w_holes + b.w_holes) / 2.0,
+        (a.w_bumpiness + b.w_bumpiness) / 2.0
+    };
+}
+
+void Mutate(HeuristicWeights& w) {
+    if (Random::Double(0,1) < MUTATION_RATE) w.w_lines += Random::Normal(0, MUTATION_STRENGTH);
+    if (Random::Double(0,1) < MUTATION_RATE) w.w_height += Random::Normal(0, MUTATION_STRENGTH);
+    if (Random::Double(0,1) < MUTATION_RATE) w.w_holes += Random::Normal(0, MUTATION_STRENGTH);
+    if (Random::Double(0,1) < MUTATION_RATE) w.w_bumpiness += Random::Normal(0, MUTATION_STRENGTH);
+}
+
+HeuristicWeights RunGeneticAlgorithm() {
+    std::vector<Individual> pop(POPULATION_SIZE);
+    for (auto& ind : pop) ind.weights = HeuristicWeights::RandomWeights();
+
+    for (int gen = 0; gen < NUM_GENERATIONS; ++gen) {
+        for (auto& ind : pop) {
+            double f = 0;
+            for (int i = 0; i < NUM_GAMES_PER_FITNESS_TEST; ++i)
+                f += SimulateGame(ind.weights);
+            ind.fitness = f / NUM_GAMES_PER_FITNESS_TEST;
+        }
+
+        std::sort(pop.begin(), pop.end(), std::greater<Individual>());
+
+        std::vector<Individual> newPop;
+        int elite = POPULATION_SIZE * ELITISM_RATE;
+        for (int i = 0; i < elite; ++i) newPop.push_back(pop[i]);
+
+        while (newPop.size() < POPULATION_SIZE) {
+            auto p1 = TournamentSelection(pop);
+            auto p2 = TournamentSelection(pop);
+            HeuristicWeights child = Crossover(p1.weights, p2.weights);
+            Mutate(child);
+            newPop.push_back({child, 0.0});
+        }
+        pop = newPop;
+
+        std::cout << "Gen " << gen+1 << ": Best=" << pop[0].fitness << " ";
+        pop[0].weights.Print(); std::cout << "\n";
+    }
+    return pop[0].weights;
+}
+
+void PlayVisibleGame(const HeuristicWeights& w) {
+    ClearScreen();
+    Board board;
+    int score = 0, lines = 0, level = 1;
+    bool over = false;
+
+    while (!over) {
+        int id = Random::Int(1, 7);
+        Piece p{id, 0, 3, 0};
+        if (board.IsGameOver(p)) { over = true; break; }
+        Move m = FindBestMove(board, id, w);
+        p.rotation = m.rotation; p.x = m.x;
+        int y = 0;
+        while (!board.IsValid({id, m.rotation, m.x, y})) y--;
+        p.y = y;
+        while (board.IsValid({id, m.rotation, m.x, p.y+1})) p.y++;
+        board.PlacePiece(p);
+        int cleared = board.ClearLines();
+        if (cleared) {
+            lines += cleared;
+            score += cleared * cleared * 100 * level;
+            level = 1 + (lines / 10);
+        }
+        ClearScreen();
+        std::cout << "--- AI Playing ---\n";
+        board.Render(score, lines, level);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    ClearScreen();
+    std::cout << "--- GAME OVER ---\nFinal Score: " << score << "\nFinal Lines: " << lines << "\n";
+}
+
 int main() {
-    srand(static_cast<unsigned int>(time(nullptr)));
-
-    cout << "🟦🟧🟥🟨🟩🟪🟫 TETRIS AUTOJUGABLE 🟫🟪🟩🟨🟥🟧🟦\n";
-    cout << "El bot está jugando solo...\n";
-    Sleep(2000);
-    system("cls");
-
-    while (true) {
-        if (gameOver) {
-            cout << "¡JUEGO TERMINADO! Puntuación: " << score << "\n";
-            cout << "Reiniciando en 2 segundos...\n";
-            Sleep(2000);
-
-            // Reiniciar juego
-            board.assign(BOARD_HEIGHT, vector<char>(BOARD_WIDTH, EMPTY_CELL));
-            colorBoard.assign(BOARD_HEIGHT, vector<int>(BOARD_WIDTH, 7));
-            score = 0;
-            gameOver = false;
-            currentPiece = {-1, -1, -1, -1};
-            system("cls");
-            continue;
-        }
-
-        if (currentPiece.type == -1) {
-            spawnPiece();
-        }
-
-        // Solo actuar si hay una pieza activa
-        if (currentPiece.type >= 0 && currentPiece.type < 7) {
-            Piece target = findBestMove();
-
-            // Aplicar rotaciones necesarias
-            while (currentPiece.rotation != target.rotation) {
-                int numRot = static_cast<int>(TETROMINOES[currentPiece.type].size());
-                currentPiece.rotation = (currentPiece.rotation + 1) % numRot;
-                Sleep(100);
-                drawBoard();
-            }
-
-            // Mover horizontalmente
-            while (currentPiece.x < target.x) {
-                currentPiece.x++;
-                Sleep(100);
-                drawBoard();
-            }
-            while (currentPiece.x > target.x) {
-                currentPiece.x--;
-                Sleep(100);
-                drawBoard();
-            }
-
-            // Caída rápida al fondo
-            while (!checkCollision(currentPiece.x, currentPiece.y + 1, TETROMINOES[currentPiece.type][currentPiece.rotation])) {
-                currentPiece.y++;
-                Sleep(50);
-                drawBoard();
-            }
-
-            // Fijar pieza
-            renderPiece(true);
-            lockPiece();
-            clearLines();
-            currentPiece = {-1, -1, -1, -1};
-        }
-
-        drawBoard();
-        Sleep(100); // Pequeña pausa visual
-    }
-
+    HeuristicWeights best = RunGeneticAlgorithm();
+    PlayVisibleGame(best);
     return 0;
 }
