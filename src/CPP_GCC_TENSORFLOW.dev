@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
-UnitCount=48
+UnitCount=47
 
 [VersionInfo]
 Major=1
@@ -513,7 +513,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit47]
-FileName=_tensorflow_cpp\_tetris\TetrisEngine.h
+FileName=_tensorflow_cpp\include\TetrisEngine.h
 CompileCpp=1
 Folder=_tensorflow_cpp/include
 Compile=1
