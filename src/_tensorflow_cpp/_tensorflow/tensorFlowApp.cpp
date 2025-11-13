@@ -103,31 +103,37 @@ DLL_EXPORT int TETRIS_GetBoardHeight() { return BOARD_HEIGHT; }
 
 // ==================== Game Session ====================
 DLL_EXPORT TETRIS_Game TETRIS_CreateGame() {
-    auto* game = new GameState();
-    // Load default AI weights or random
-    game->aiWeights = HeuristicWeights::RandomWeights();
-    return game;
+    try {
+        auto* game = new GameState();
+        game->aiWeights = HeuristicWeights::RandomWeights();
+        return game;
+    } catch (...) {
+        return nullptr; // Return null on failure
+    }
 }
 
-DLL_EXPORT void TETRIS_DestroyGame(TETRIS_Game game) {
-    delete static_cast<GameState*>(game);
+DLL_EXPORT void TETRIS_DestroyGame(TETRIS_Game gameHandle) {
+    auto* game = static_cast<GameState*>(gameHandle);
+    if (game) delete game;
 }
 
 // ==================== Game Control ====================
 DLL_EXPORT void TETRIS_Reset(TETRIS_Game gameHandle) {
     auto* game = static_cast<GameState*>(gameHandle);
-    game->grid = {}; // Clear grid
+    if (!game) return;
+    
+    game->grid = {};
     game->score = 0;
     game->lines = 0;
     game->level = 1;
     game->gameOver = false;
+    game->nextPiece = 0;
 }
 
 DLL_EXPORT void TETRIS_Step(TETRIS_Game gameHandle) {
     auto* game = static_cast<GameState*>(gameHandle);
-    if (game->gameOver) return;
+    if (!game || game->gameOver) return;
 
-    // Generate piece if needed
     if (game->nextPiece == 0) {
         game->nextPiece = Engine::Random::Int(1, 7);
     }
@@ -160,51 +166,63 @@ DLL_EXPORT void TETRIS_Step(TETRIS_Game gameHandle) {
 
 DLL_EXPORT void TETRIS_ToggleAutoPlay(TETRIS_Game gameHandle) {
     auto* game = static_cast<GameState*>(gameHandle);
-    game->autoPlay = !game->autoPlay;
-    // In a real implementation, you'd run a loop in another thread
+    if (game) game->autoPlay = !game->autoPlay;
 }
 
 // ==================== State Query ====================
 DLL_EXPORT int TETRIS_GetScore(TETRIS_Game gameHandle) {
-    return static_cast<GameState*>(gameHandle)->score;
+    auto* game = static_cast<GameState*>(gameHandle);
+    return game ? game->score : 0;
 }
 
 DLL_EXPORT int TETRIS_GetLines(TETRIS_Game gameHandle) {
-    return static_cast<GameState*>(gameHandle)->lines;
+    auto* game = static_cast<GameState*>(gameHandle);
+    return game ? game->lines : 0;
 }
 
 DLL_EXPORT int TETRIS_GetLevel(TETRIS_Game gameHandle) {
-    return static_cast<GameState*>(gameHandle)->level;
+    auto* game = static_cast<GameState*>(gameHandle);
+    return game ? game->level : 1;
 }
 
 DLL_EXPORT int TETRIS_GetNextPiece(TETRIS_Game gameHandle) {
-    return static_cast<GameState*>(gameHandle)->nextPiece;
+    auto* game = static_cast<GameState*>(gameHandle);
+    return game ? game->nextPiece : 0;
 }
 
 DLL_EXPORT int TETRIS_IsGameOver(TETRIS_Game gameHandle) {
-    return static_cast<GameState*>(gameHandle)->gameOver ? 1 : 0;
+    auto* game = static_cast<GameState*>(gameHandle);
+    return (game && game->gameOver) ? 1 : 0;
 }
 
 DLL_EXPORT const int* TETRIS_GetBoardMatrix(TETRIS_Game gameHandle) {
     auto* game = static_cast<GameState*>(gameHandle);
-    // Return pointer to first element of 2D array
-    return &game->grid[0][0];
+    return game ? &game->grid[0][0] : nullptr;
 }
 
 // ==================== AI Functions ====================
 DLL_EXPORT void TETRIS_TrainAI(const char* weightsFile, int generations) {
+    if (!weightsFile) return;
     if (generations <= 0) generations = NUM_GENERATIONS;
-    auto weights = Engine::RunGeneticAlgorithm();
-    Engine::SaveWeights(weights, weightsFile);
+    try {
+        auto weights = Engine::RunGeneticAlgorithm();
+        Engine::SaveWeights(weights, weightsFile);
+    } catch (...) {
+        // Silently fail - in production, add error handling
+    }
 }
 
 DLL_EXPORT void TETRIS_LoadAI(TETRIS_Game gameHandle, const char* weightsFile) {
     auto* game = static_cast<GameState*>(gameHandle);
+    if (!game || !weightsFile) return;
     Engine::LoadWeights(game->aiWeights, weightsFile);
 }
 
 DLL_EXPORT void TETRIS_GetAIWeights(TETRIS_Game gameHandle, double* weightsOut) {
+    if (!weightsOut) return;
     auto* game = static_cast<GameState*>(gameHandle);
+    if (!game) return;
+    
     weightsOut[0] = game->aiWeights.w_lines;
     weightsOut[1] = game->aiWeights.w_height;
     weightsOut[2] = game->aiWeights.w_holes;
@@ -212,7 +230,10 @@ DLL_EXPORT void TETRIS_GetAIWeights(TETRIS_Game gameHandle, double* weightsOut) 
 }
 
 DLL_EXPORT void TETRIS_SetAIWeights(TETRIS_Game gameHandle, const double* weightsIn) {
+    if (!weightsIn) return;
     auto* game = static_cast<GameState*>(gameHandle);
+    if (!game) return;
+    
     game->aiWeights.w_lines = weightsIn[0];
     game->aiWeights.w_height = weightsIn[1];
     game->aiWeights.w_holes = weightsIn[2];
