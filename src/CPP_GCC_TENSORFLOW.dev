@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
-UnitCount=50
+UnitCount=49
 
 [VersionInfo]
 Major=1
@@ -522,17 +522,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit49]
-FileName=_tensorflow_cpp\include\TetrisEngineStateless.cpp
+[Unit50]
+FileName=_tensorflow_cpp\_tetris\TetrisBoardStateless.cpp
 CompileCpp=1
-Folder=_tensorflow_cpp/include
+Folder=_tensorflow_cpp/tetris
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit50]
+[Unit49]
 FileName=_tensorflow_cpp\_tetris\TetrisBoardStateless.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/tetris
