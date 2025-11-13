@@ -98,6 +98,10 @@ namespace Engine {
 
 struct GameState {
     BoardGrid grid;
+    BoardGrid previewGrid; // Add this for preview rendering
+    int lastPiece = 0;     // Store last piece for preview
+    Move lastMove;         // Store last move for preview
+
     int score = 0;
     int lines = 0;
     int level = 1;
@@ -106,7 +110,6 @@ struct GameState {
     bool autoPlay = false;
     HeuristicWeights aiWeights;
 };
-
 
 // ==================== Random Implementation ====================
 namespace Engine::Random {

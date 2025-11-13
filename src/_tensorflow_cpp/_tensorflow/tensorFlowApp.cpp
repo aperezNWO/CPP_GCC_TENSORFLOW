@@ -128,12 +128,20 @@ DLL_EXPORT void TETRIS_Reset(TETRIS_Game gameHandle) {
     game->level = 1;
     game->gameOver = false;
     game->nextPiece = 0;
+    
+    game->previewGrid = {}; // Add this for preview rendering
+    game->lastPiece   = 0;     // Store last piece for preview
+    
+   
 }
 
+
+// Modify TETRIS_Step to store move info:
 DLL_EXPORT void TETRIS_Step(TETRIS_Game gameHandle) {
     auto* game = static_cast<GameState*>(gameHandle);
     if (!game || game->gameOver) return;
 
+    // Generate piece if needed
     if (game->nextPiece == 0) {
         game->nextPiece = Engine::Random::Int(1, 7);
     }
@@ -148,6 +156,12 @@ DLL_EXPORT void TETRIS_Step(TETRIS_Game gameHandle) {
     }
 
     Move m = Engine::FindBestMove(game->grid, currentPiece, game->aiWeights);
+    
+    // Store for preview
+    game->lastPiece = currentPiece;
+    game->lastMove = m;
+    
+    // ... rest of the function (drop logic) ...
     p.rotation = m.rotation; p.x = m.x;
     
     int y = 0;
@@ -238,4 +252,22 @@ DLL_EXPORT void TETRIS_SetAIWeights(TETRIS_Game gameHandle, const double* weight
     game->aiWeights.w_height = weightsIn[1];
     game->aiWeights.w_holes = weightsIn[2];
     game->aiWeights.w_bumpiness = weightsIn[3];
+}
+
+//
+DLL_EXPORT const int* TETRIS_GetBoardMatrixWithPreview(TETRIS_Game gameHandle) {
+    auto* game = static_cast<GameState*>(gameHandle);
+    if (!game) return nullptr;
+    
+    // If no piece has been processed, return normal board
+    if (game->lastPiece == 0) {
+        return TETRIS_GetBoardMatrix(gameHandle);
+    }
+    
+    // Create preview with piece at y=0 (top)
+    Piece previewPiece{game->lastPiece, game->lastMove.rotation, game->lastMove.x, 0};
+    game->previewGrid = game->grid;
+    game->previewGrid = Engine::PlacePiece(game->previewGrid, previewPiece);
+    
+    return &game->previewGrid[0][0];
 }
