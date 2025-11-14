@@ -2,7 +2,7 @@
 
 	Compile from root with:
 
-	g++ -std=c++20 -o __test/TetrisBoardStateless.exe _tetris/TetrisBoardStateless.cpp include/TetrisEngineStateless.cpp
+	g++ -std=c++20 -o __test/TetrisBoardStateless.exe _tetris/TetrisBoardStateless.cpp 
 
 */
 
