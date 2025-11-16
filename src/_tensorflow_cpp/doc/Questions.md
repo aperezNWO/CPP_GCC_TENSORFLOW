@@ -61,4 +61,10 @@ The program has the following group of components
  which component of thie fullstack may apply or if better to add one (i.e. chess a.i.)
           
 /////////////////////////////////////////////
+
+-- [_] MACHINE LEARNING PENSUM QUESIION
+
+      -- [_] I had a c++ code which showcase the usage of a neural network with a tic tac toe autoplay. Also I have a c++ code which showcase the usage of genetic algorithms with a tetris autoplay. Both does not rely on prebuilt a.i. or g.a. libraries but on pure math logic. Despite of the existance of prebuilt libraries for machine learning, can you advise me on one or several excersices the simplest as possible to showcase the fundamentals of mschine learning using the same aproach (no prebuilt libraries, just pure math and c++ logic)?
+
+/////////////////////////////////////////////
 	
