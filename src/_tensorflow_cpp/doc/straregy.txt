@@ -2,28 +2,6 @@
 // STRATEGY
 /////////////////////////////////////////////
 
--- [_] Artificial Inteligence curriculum.
-
-        -- [_] http://localhost:4200/#/GridParam?searchTerm=06f33ccf-68be-4fbe-b9af-4ba5cc9535f2&pageName=PAGE_CURRICULUM_AI
-
-        -- [_] articles *.md.
-
-                -- [_] ai. / ml.
-
-                -- [_] angular.
-
-        -- [_] neural network     -> tic tac toe autoplay.
-
-        -- [_] generic algorithm  -> tetris autoplay.
-
-        -- [_] Machine Learning.
-        
-                -- [_] Linear Regression.
-                
-                -- [_] Clasification.
-
-                -- [_] ...
-                
 -- [_] Machine Learning / Artificial Intelligence / Neural Networks example.
 
 	-- [_] https://chat.qwen.ai/c/7d46d2ce-70a5-4c9f-ba4c-d7ce475527ed.
@@ -83,5 +61,30 @@
 			-- [_] wget https://github.com/KichangKim/DeepDanbooru/releases/download/v3-20211112-sgd-e28/deepdanbooru-v3-20211112-sgd-e28.zip
 
    -- [_] [Update C++ Pénsum].
+
+-- [_] Artificial Inteligence curriculum.
+
+        -- [_] http://localhost:4200/#/GridParam?searchTerm=06f33ccf-68be-4fbe-b9af-4ba5cc9535f2&pageName=PAGE_CURRICULUM_AI
+
+        -- [_] articles *.md.
+
+                -- [_] ai. / ml.
+
+                -- [_] angular.
+
+        -- [_] neural network     -> tic tac toe autoplay.
+
+        -- [_] generic algorithm  -> tetris autoplay.
+
+        -- [_] Machine Learning.
+        
+                -- [_] Linear Regression.
+                
+                        -- [_] I can identify that many of the linear regression applications can be to predict prizes based up on historical behaviour (taxi fees, hojuse prices, etc)
+   
+                
+                -- [_] Clasification.
+
+                -- [_] ...
 	
 /////////////////////////////////////////////////////////////////////////////////////
