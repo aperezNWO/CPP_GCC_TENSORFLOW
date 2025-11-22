@@ -22,12 +22,6 @@
         
         -- [_] Chess.
         
-        -- [_] OCR.
-        
-        -- [_] Computer Vision 
-			
-				-- [_] Image / Shape Recognition.
-        
 	-- [x] TIC-TAC-TOE GAME.
 	
 		-- [x] SLC PROJECT 001 - Role=Developer
@@ -59,6 +53,13 @@
 	
 			-- [_] Load Existing model / from .NET Core / C++.
 
-	-- [_] [Update C++ Pénsum].
+       
+   -- [_] Computer Vision 
+			
+			-- [_] Image / Shape Recognition.
+			
+			-- [_] wget https://github.com/KichangKim/DeepDanbooru/releases/download/v3-20211112-sgd-e28/deepdanbooru-v3-20211112-sgd-e28.zip
+
+   -- [_] [Update C++ Pénsum].
 	
 /////////////////////////////////////////////////////////////////////////////////////
