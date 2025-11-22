@@ -87,7 +87,7 @@ int main() {
 
     // Predict the total mission time for Apollo 18
     double missionNumberToPredict = 18.0;
-    double predictedTotalTime = slope * missionNumberToPredict + intercept;
+    double predictedTotalTime     = slope * missionNumberToPredict + intercept;
 
     std::cout << "\nPredicted total mission time for Apollo " << static_cast<int>(missionNumberToPredict) << ": " << predictedTotalTime << " hours. " << (predictedTotalTime)/24  << " days. "<< std::endl;
 
