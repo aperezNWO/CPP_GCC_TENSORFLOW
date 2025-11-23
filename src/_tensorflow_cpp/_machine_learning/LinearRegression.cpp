@@ -86,10 +86,10 @@ int main() {
     std::cout << "Linear Regression Model (including Apollo 8 & 10): Total_Time_Hours = " << slope << " * Mission_Number + " << intercept << std::endl;
 
     // Predict the total mission time for Apollo 18
-    double missionNumberToPredict = 18.0;
+    double missionNumberToPredict = 10.0; /*18.0;*/
     double predictedTotalTime     = slope * missionNumberToPredict + intercept;
 
-    std::cout << "\nPredicted total mission time for Apollo " << static_cast<int>(missionNumberToPredict) << ": " << predictedTotalTime << " hours. " << (predictedTotalTime)/24  << " days. "<< std::endl;
+    std::cout << "\nPredicted total mission time for Apollo " << static_cast<int>(missionNumberToPredict + 8) << ": " << predictedTotalTime << " hours. " << (((predictedTotalTime)/24) / 2) << " days forth and back. "<< std::endl;
 
     // Note: This prediction is based on a very simplistic model applied to limited and potentially non-linear data.
     // It does not represent a realistic prediction for an actual mission.
