@@ -138,6 +138,21 @@ The program has the following group of components
                   ML Libraries: Scikit-learn (for classical algorithms)
                   Deep Learning Libraries: TensorFlow/Keras, PyTorch
                   Data Handling: Working with datasets, cleaning, exploration (using Pandas, NumPy).   
-   
+
+                  Deep Learning Libraries: TensorFlow/Keras, PyTorch
+                  Data Handling: Working with datasets, cleaning, exploration (using Pandas, NumPy).
+
+ -- [_] MACHINE LEARNING APPROACH
+
+      -- [_] CONCEPT.
+          
+      -- [_] REAL WORLD SOLUTION.
+
+      -- [_] C++ CODE.
+          
+      -- [_] TENSORFLOW FOR C++ CODE.
+
+      -- [_] HISTORY OF THE ALGORITHM.
+         
 /////////////////////////////////////////////
 	
