@@ -19,7 +19,7 @@ CursorRow=5
 TopLine=1
 LeftChar=1
 [Editors]
-Order=42,25,0,43
+Order=
 Focused=43
 [Editor_4]
 CursorCol=2
@@ -232,7 +232,7 @@ CursorRow=1
 TopLine=13
 LeftChar=1
 [Editor_28]
-CursorCol=7
-CursorRow=156
-TopLine=132
+CursorCol=1
+CursorRow=145
+TopLine=136
 LeftChar=1

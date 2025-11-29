@@ -146,13 +146,13 @@ The program has the following group of components
 
       -- [_] CONCEPT.
           
-      -- [_] REAL WORLD SOLUTION.
-
-      -- [_] C++ CODE.
-          
-      -- [_] TENSORFLOW FOR C++ CODE.
-
-      -- [_] HISTORY OF THE ALGORITHM.
+	      -- [_] C++ CODE.
+	          
+	      -- [_] TENSORFLOW FOR PYTHON CODE.
+	
+	      -- [_] HISTORY OF THE ALGORITHM.
+	      
+	      -- [_] REAL WORLD SOLUTION (language, models and infrastructure may vary).
          
 /////////////////////////////////////////////
 	
