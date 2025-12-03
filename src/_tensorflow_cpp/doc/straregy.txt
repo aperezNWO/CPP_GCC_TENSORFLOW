@@ -86,5 +86,19 @@
                 -- [_] Clasification.
 
                 -- [_] ...
+
+ -- [_] MACHINE LEARNING APPROACH
+
+      -- [_] CONCEPT.
+          
+	      -- [_] C++ CODE.
+
+                        -- [_] c++ curriculum.
+
+	      -- [_] TENSORFLOW FOR PYTHON CODE.
 	
+	      -- [_] HISTORY OF THE ALGORITHM.
+	      
+	      -- [_] REAL WORLD SOLUTION (language, models and infrastructure may vary).
+		  	
 /////////////////////////////////////////////////////////////////////////////////////
