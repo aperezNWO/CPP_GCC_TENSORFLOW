@@ -1,8 +1,8 @@
 /*
+    COMPILE FROM ROOT 
+    
+	g++ -std=c++20  -o "__test/LinearRegression.exe"  "_machine_learning/LinearRegression.cpp"
 
-	g++ -std=c++20  -o "../__test/LinearRegression.exe"  "LinearRegression.cpp"
-
-*/
 
 #include <iostream>
 #include <vector>
@@ -10,7 +10,7 @@
 
 // Structure to hold a single data point (mission number, travel time)
 struct DataPoint {
-    double mission_number; // x
+    double mission_number;           // x
     double total_mission_time_hours; // y (Total mission duration in hours)
 };
 
@@ -66,7 +66,7 @@ int main() {
     // Apollo 16: 11 days 1 hour = (11 * 24) + 1 = 265 hours
     // Apollo 17: 12 days 13 hours = (12 * 24) + 13 = 301 hours
     std::vector<DataPoint> historicalData = {
-        {8.0, 147.0},  // Apollo 8
+        {8.0,  147.0}, // Apollo 8  // Apollo 9 did not reach the moon
         {10.0, 193.0}, // Apollo 10 (Corrected)
         {11.0, 195.0}, // Apollo 11
         {12.0, 244.0}, // Apollo 12
