@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
-UnitCount=44
+UnitCount=43
 
 [VersionInfo]
 Major=1
@@ -348,16 +348,6 @@ BuildCmd=
 
 [Unit43]
 FileName=_tensorflow_cpp\_machine_learning\LinearRegression.cpp
-CompileCpp=1
-Folder=_tensorflow_cpp/machine_learning
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit44]
-FileName=_tensorflow_cpp\_machine_learning\LinearRegressionTF.cpp
 CompileCpp=1
 Folder=_tensorflow_cpp/machine_learning
 Compile=1

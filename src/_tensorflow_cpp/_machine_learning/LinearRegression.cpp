@@ -3,6 +3,7 @@
     
 	g++ -std=c++20  -o "__test/LinearRegression.exe"  "_machine_learning/LinearRegression.cpp"
 
+*/
 
 #include <iostream>
 #include <vector>
@@ -56,15 +57,15 @@ void simpleLinearRegression(const std::vector<DataPoint>& data, double& slope, d
 
 int main() {
     // Historical Data: Mission Number vs. Total Mission Duration (Hours)
-    // Apollo 8: 6 days 3 hours = (6 * 24) + 3 = 147 hours
+    // Apollo 8: 6 days 3 hours     = (6 * 24) + 3 = 147 hours
     // Apollo 10: 8 days 37 minutes = (8 * 24) + 37/60 ~ 192.6 hours -> Rounded to 193
-    // Apollo 11: 8 days 3 hours = (8 * 24) + 3 = 195 hours
-    // Apollo 12: 10 days 4 hours = (10 * 24) + 4 = 244 hours
-    // Apollo 13: 5 days 22 hours = (5 * 24) + 22 = 142 hours
-    // Apollo 14: 9 days 1 hour = (9 * 24) + 1 = 217 hours
-    // Apollo 15: 12 days 7 hours = (12 * 24) + 7 = 295 hours
-    // Apollo 16: 11 days 1 hour = (11 * 24) + 1 = 265 hours
-    // Apollo 17: 12 days 13 hours = (12 * 24) + 13 = 301 hours
+    // Apollo 11: 8 days 3 hours    = (8 * 24) + 3 = 195 hours
+    // Apollo 12: 10 days 4 hours   = (10 * 24) + 4 = 244 hours
+    // Apollo 13: 5 days 22 hours   = (5 * 24) + 22 = 142 hours
+    // Apollo 14: 9 days 1 hour     = (9 * 24) + 1 = 217 hours
+    // Apollo 15: 12 days 7 hours   = (12 * 24) + 7 = 295 hours
+    // Apollo 16: 11 days 1 hour    = (11 * 24) + 1 = 265 hours
+    // Apollo 17: 12 days 13 hours  = (12 * 24) + 13 = 301 hours
     std::vector<DataPoint> historicalData = {
         {8.0,  147.0}, // Apollo 8  // Apollo 9 did not reach the moon
         {10.0, 193.0}, // Apollo 10 (Corrected)
@@ -86,10 +87,10 @@ int main() {
     std::cout << "Linear Regression Model (including Apollo 8 & 10): Total_Time_Hours = " << slope << " * Mission_Number + " << intercept << std::endl;
 
     // Predict the total mission time for Apollo 18
-    double missionNumberToPredict = 10.0; /*18.0;*/
+    double missionNumberToPredict = 18.0;
     double predictedTotalTime     = slope * missionNumberToPredict + intercept;
 
-    std::cout << "\nPredicted total mission time for Apollo " << static_cast<int>(missionNumberToPredict + 8) << ": " << predictedTotalTime << " hours. " << (((predictedTotalTime)/24) / 2) << " days forth and back. "<< std::endl;
+    std::cout << "\nPredicted total mission time for Apollo " << static_cast<int>(missionNumberToPredict + 8) << ": " << predictedTotalTime << " hours. " << ((predictedTotalTime)/24) << " days. "<< std::endl;
 
     // Note: This prediction is based on a very simplistic model applied to limited and potentially non-linear data.
     // It does not represent a realistic prediction for an actual mission.

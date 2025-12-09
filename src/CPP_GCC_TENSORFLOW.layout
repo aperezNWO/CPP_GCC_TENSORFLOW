@@ -167,9 +167,9 @@ CursorRow=1
 TopLine=1
 LeftChar=1
 [Editor_42]
-CursorCol=1
-CursorRow=5
-TopLine=1
+CursorCol=42
+CursorRow=90
+TopLine=88
 LeftChar=1
 [Editor_43]
 CursorCol=1
