@@ -92,6 +92,19 @@ DLL_EXPORT bool PlayTicTacToeGameWithHistory(TicTacToeResultOnline* result, int 
         return false;
     }
 }
+
+//
+DLL_EXPORT double Predict( double missionNumberToPredict )
+{
+	//
+    LinearRegression *linearRegression = new LinearRegression();
+    
+    //
+    double predictedTotalTime          = linearRegression->predict(missionNumberToPredict);
+      
+    //
+    return predictedTotalTime;
+}
 ////////////////////////////////////////////////////////////////////////////////
 // TETRIS END POINTS
 ////////////////////////////////////////////////////////////////////////////////

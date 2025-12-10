@@ -1,10 +1,8 @@
-/*
-
-    COMPILE FROM ROOT 
-    
-	g++ -std=c++20  -o "__test/LinearRegression.exe"  "_machine_learning/LinearRegression.cpp"
-
-*/
+// LinearRegression.h
+#ifndef LINEARREGRESSION_H // include guard
+#define LINEARREGRESSION_H
+#endif
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -110,20 +108,3 @@ class LinearRegression
             return predictedTotalTime;
  		}	
 };
-
-int main() {
-	   
-	//
-    LinearRegression *linearRegression = new LinearRegression();
-    
-    //
-    double missionNumberToPredict   = 18;
-    double predictedTotalTime       = linearRegression->predict(missionNumberToPredict);
-    
-    //
-	std::cout << "Linear Regression Model (including Apollo 8 & 10): Total_Time_Hours = " << linearRegression->slope << " * Mission_Number + " << linearRegression->intercept << std::endl;
-    std::cout << "\nPredicted total mission time for Apollo " << static_cast<int>(missionNumberToPredict) << ": " << predictedTotalTime << " hours. " << ((predictedTotalTime)/24) << " days. "<< std::endl;
-
-    //
-    return 0;
-}
