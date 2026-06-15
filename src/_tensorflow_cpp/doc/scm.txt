@@ -8,6 +8,8 @@
 	  git commit -m"working folder update" -a 
 	  git push 
 	  git pull
+	  
+      git add * & git commit -m"Application CPP_GCC_TENSORFLOW v[1.0.3]" -m"1) Tetris a.i. logic deleted" -a & git push & git pull
 	    
 --[_] DISTRIBUTION FILES (__DIST FOLDER)
 
